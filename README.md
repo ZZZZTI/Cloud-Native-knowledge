@@ -1,3 +1,9 @@
+# Welcome to ZTI's CloudNative knowledge repository!
+
+> [!IMPORTANT]
+>
+> I'm still learning......
+
 
 
 ```mermaid
@@ -15,4 +21,8 @@ graph LR
     DEV --- Redis
     DEV --- Mysql
     DEV --- Java17
+    
+    Linux --- TXT&Shell
+    Linux --- Basic&Safe
+    Linux --- Monitor&Solve
 ```
