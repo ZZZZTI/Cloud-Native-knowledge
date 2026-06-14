@@ -15,14 +15,14 @@ graph LR
     SRE --- Linux
     SRE --- K8S
     SRE --- Devops
-    SRE --- Alicloud
+    SRE --- AliCloud
 
     DEV --- springboot3.x
     DEV --- Redis
     DEV --- Mysql
     DEV --- Java17
     
-    Linux --- TXT&Shell
-    Linux --- Basic&Safe
-    Linux --- Monitor&Solve
+    Linux --- TXT+Shell
+    Linux --- Basic+Safe
+    Linux --- Monitor+Solve
 ```
