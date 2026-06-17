@@ -1,55 +1,48 @@
--- 任务调度，shell脚本
+> 后台定时任务调度与shell自动化脚本
+
+------
+
+# crond定时任务
+
+```Shell
+# cron 服务管理
+systemctl status crond      # 查看crond是否运行
+systemctl start crond       # 启动crond
+systemctl stop crond        # 停止crond
+systemctl restart crond     # 重启crond
+systemctl enable crond      # 设置开机自启
+
+# 定时任务管理
+crontab -e                  # 编辑当前用户的定时任务（/var/spool/crontabs/用户名）
+crontab -l                  # 查看当前用户的所有定时任务
+crontab -r                  # 删除当前用户的所有定时任务
+crontab -u 用户名            # 操作指定用户的定时任务
+grep CRON /var/log/syslog   # 查看cron任务日志
+
+# 定时任务格式
+[*  *  *  *  *]   [命令]/[bin/bash 脚本路径]   [>/>>]  [文件]  2>&1
+ ┬  ┬  ┬  ┬  ┬
+ │  │  │  │  └── 星期（0-7，0和7都代表周日）
+ │  │  │  └───── 月份（1-12）
+ │  │  └──────── 日期（1-31）
+ │  └─────────── 小时（0-23）
+ └────────────── 分钟（0-59）
+
+时间
+0 1 2             # 具体时间
+*                 # 任意值（每分钟/每小时/每天...）
+,                 # 枚举多个值，如 1,3,5
+-                 # 范围，如 10-12
+/                 # 步长，如 */5 表示每5个单位
+@reboot           # 系统重启时执行一次
+@daily/hourly..   # 每日/时...
+```
 
 
 
 
-# 批量创建用户
-#!/bin/bash          
-    # ↑ Shebang，告诉系统用 bash 执行
-while read username; do        
-    # ↑ 逐行读取 users.txt 文件，每行存到 username 变量
-sudo useradd -m -s /bin/bash "$username"
-    # ↑ 创建用户
-    # -m：创建家目录 /home/username
-    # -s /bin/bash：指定登录 shell
-    # sudo：需要 root 权限
-echo "$username:TempPass123" | sudo chpasswd
-    # ↑ 设置初始密码为 TempPass123
-    # chpasswd 接收 "用户名:密码" 格式
-sudo passwd -e "$username"
-    # ↑ -e 参数：强制用户首次登录时修改密码
-done < users.txt
-    # ↑ 重定向：从 users.txt 文件读取输入
 
 
-# crond 定时任务调度器
-
--- 开启关闭crond服务
-sudo systemctl start/stop/restart/enable crond
-
--- crond语句语法
-          * * * * * /path/to/command
-          ─ ─ ─ ─ ─
-          │ │ │ │ │
-          │ │ │ │ └─── 星期几 (0-7, 0和7都代表周日)       *:代表"每"       * * * * *       = 每分钟执行一次
-          │ │ │ └───── 月份 (1-12)                     ,  :列举多个值    1,15,30 * * * * = 每小时的第1、15、30分钟执行
-          │ │ └─────── 日期 (1-31)                     -  :范围           0 9-17 * * *    = 每天9点到17点的每个整点执行
-          │ └───────── 小时 (0-23)                     /n:每隔n个单位    */5 * * * *      = 每隔5分钟执行一次
-          └─────────── 分钟 (0-59)
-
--- 常用实例
-每天凌晨 2:30 执行备份脚本
-30 2 * * * /home/user/backup.sh
-每周一上午 9:00 执行
-0 9 * * 1 /usr/bin/echo "Monday morning meeting"
-每月1号凌晨 0:00 清理日志
-0 0 1 * * /usr/bin/find /var/log -name "*.log" -mtime +30 -delete
-每隔10分钟检查某个服务状态
-*/10 * * * * /usr/bin/systemctl status nginx > /dev/null 2>&1
-工作日的每小时（9点到18点）执行
-0 9-18 * * 1-5 /path/to/script.sh
-每年1月1日凌晨0点01分执行新年任务
-1 0 1 1 * /usr/bin/echo "Happy New Year!"
 
 
 
@@ -92,18 +85,12 @@ at -f /scripts/maintenance.sh 03:00
 echo "/usr/sbin/shutdown -h now" | at now + 2 hours
 
 
-# 管道
 
-符号    作用                示例
-'|'   传递数据给另一个命令    cat file | grep error
-'>'   输出到文件（覆盖）     cat file > output.txt
-'>>'  输出到文件（追加）  cat file >> output.txt
-'<'   从文件输入             grep error < file.txt
-'2>'  重定向错误输出       command 2> error.log
-'&>'  重定向所有输出        command &> output.log
 
--- 日志：统计 + 排序 + TOP N
-cat log | awk '{print $N}' | sort | uniq -c | sort -rn | head -10
+
+# cron中脚本顶端里要加上的解释器和命令路径
+#!/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 
 # shell
@@ -302,3 +289,24 @@ log_error "输出表为空"
 exit 1
 fi
 log_info "ETL 完成，输出记录数: $OUTPUT_COUNT"
+
+
+
+# 批量创建用户
+
+#!/bin/bash          
+    # ↑ Shebang，告诉系统用 bash 执行
+while read username; do        
+    # ↑ 逐行读取 users.txt 文件，每行存到 username 变量
+sudo useradd -m -s /bin/bash "$username"
+    # ↑ 创建用户
+    # -m：创建家目录 /home/username
+    # -s /bin/bash：指定登录 shell
+    # sudo：需要 root 权限
+echo "$username:TempPass123" | sudo chpasswd
+    # ↑ 设置初始密码为 TempPass123
+    # chpasswd 接收 "用户名:密码" 格式
+sudo passwd -e "$username"
+    # ↑ -e 参数：强制用户首次登录时修改密码
+done < users.txt
+    # ↑ 重定向：从 users.txt 文件读取输入
