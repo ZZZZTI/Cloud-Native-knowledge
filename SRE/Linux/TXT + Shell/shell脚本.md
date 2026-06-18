@@ -1,8 +1,266 @@
-> 后台定时任务调度与shell自动化脚本
+> shell自动化脚本与后台定时任务调度
 
 ------
 
-# crond定时任务
+# SHELL与脚本
+
+### 脚本头部模版
+
+```Shell
+#!/usr/bin/env bash     
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+set -euo pipefail
+# ============================================================
+# 脚本名称: script.sh
+# 功能描述: .........
+# 作者:    nbbro
+# 创建日期: 2026-06-18
+# 版本:     1.0
+# ============================================================
+# ---------- 全局变量配置 -----------
+readonly BACKUP_SOURCE="/data"
+readonly BACKUP_DEST="/backup"
+readonly LOG_FILE="/var/log/backup.log"
+# ---------- 引入其他库 -------------
+source /path/to/lib1.sh
+source /path/to/lib2.sh
+# ---------- 函数定义 ---------------
+function func1() {...}
+function func2() {...}
+# ---------- 主逻辑 ----------------
+main() {}
+
+main "$@"
+```
+
+### 执行脚本
+
+```Shell
+bash script.sh a b       # a,b为用户传入的位置参数，供脚本内部调用
+bash -n script.sh        # 检查脚本有没有语法错误，但不实际运行
+bash -x script.sh        # 打印每一行执行的命令及其参数
+```
+
+### 输入输出
+
+```Shell
+# 输入
+read [选项] 变量
+read -s               # 静默输入
+read -p "请输入"       # 带提示输入
+read -t 5             # 输入限时
+read -n 1             # 输入限字数
+
+# 输出
+echo -n "..."         # 不换行输出
+echo "..."            # 输出并解析变量
+echo '...'            # 原样输出字符串
+printf "时间:%d\n" 25  # %d->25
+cat << EOF
+...............
+...............
+...............
+EOF                   # 输出长文本
+
+exit                  # 退出脚本
+```
+
+### 变量
+
+```Shell
+# 定义变量
+[export] [readonly] time="today"/$(date)
+ [全局^]   [只读^]
+# 变量名：只包含字母数字下划线，不能以数字开头
+# 变量值：字符串/命令输出值（可以用管道）
+
+# 删除变量
+unset time
+
+# 引用变量
+echo "my time is${time}"
+echo $time
+echo ${time:-default}       # time为空则输出 default
+echo ${time:=default}       # time为空则赋值为 default
+echo ${time:+not_empty}     # time不为空则输出 not_empty
+echo ${time:?error_msg}     # time为空则输出 error_msg 并退出
+
+# 特殊变量（不用定义，直接用）
+echo "当前脚本的文件名：$0"
+echo "位置参数调用：$1 $2 ${10}"
+echo "位置参数总个数：$#"
+echo "所有位置参数：$@"        # 用于遍历
+echo "上一条命令的退出码：$?"   # 0为命令成功
+TEMP_FILE="/xxx.$$.tmp"      # shell进程ID
+kill $!                      # 最后一个后台进程的 PID
+```
+
+### 条件测试
+
+```Shell
+# 测试条件格式
+[[ (XXX 操作符 XXX) (&&/||/!) (XXX 操作符 XXX) ]]
+# 数值测试
+[[ $a -eq(=)/-ne(!=)/-gt(>)/-lt(<)/-ge(>=)/-le(<=) 10 ]]
+# 字符串测试
+[[ "$name" ==/!= "root" ]]
+[[ -z(空)/-n(非空) "$name" ]]
+# 文件测试
+[[ -e(存在)/-f(文件)/-d(目录)/-x(可执行)/-r(可读)/-w(可写)/-s(非空) 目录/文件 ]]
+# 条件为命令，输出退出码，0为条件成立
+[[ 命令 ]]
+```
+
+### 条件判断
+
+```Shell
+# 单if=========================
+if [[ 条件 ]]; then
+    echo "成功"
+    break      # 跳出整个循环
+    continue   # 跳过本次循环
+fi
+
+# 双if=========================
+if [[ 条件 ]]; then
+    echo "成立"
+else
+    echo "不成立"
+fi
+
+
+# 多if=========================
+if [[ $score -ge 90 ]]; then
+    echo "优秀"
+elif [[ $score -ge 60 ]]; then
+    echo "及格"
+else
+    echo "不及格"
+fi
+
+# 多case=======================
+case $1 in
+    start)
+        echo "启动服务..."
+        ;;
+    stop)
+        echo "停止服务..."
+        ;;
+    restart)
+        echo "重启服务..."
+        ;;
+    *)
+        echo "用法: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+```
+
+### 循环遍历判断
+
+```Shell
+# 变量$i -> 数字 1-5/用户传入的所有参数
+for i in [1 2 3 4 5]/{1..5}/"$@"; do
+    echo "数字: $i"
+done
+
+# 变量$file -> 当前目录下所有 *.txt文件
+for file in *.txt; do
+    echo "文件名: $file"
+    echo "文件行数：$(wc -l < $file)"
+done
+
+# 变量$user -> 命令执行结果
+for user in $(cat /etc/passwd | cut -d: -f1); do
+    echo "用户名: $user"
+done
+
+# 条件循环
+while true; do
+    free -h
+    echo "--- 按 Ctrl+C 停止 ---"
+    sleep 2
+done
+```
+
+### 函数
+
+```Shell
+# 定义函数的格式
+function my_func() {
+    loacl name="函数局部变量"
+    echo "hello,$1. fxxk you!"
+    return 0/1       # 退出函数（退出码）
+}
+# 调用函数
+my_func "nbbro"      # 调用函数时传的参只针对函数，对整个脚本无用       
+the_word=$(my_func)  # 变量为函数 echo 出来的值
+```
+
+### Getopts: 命令行参数解析
+
+```Shell
+# 定义默认值
+USER=""
+PORT=22
+VERBOSE=0
+
+# 解析选项(u: p: 带参数，h v 不带参数)
+# $opt    ->循环中的当前选项字母
+# $OPTARG	->当前选项的参数值
+# $OPTIND	->下一个要处理的参数索引
+while getopts "u:p:hv" opt; do
+    case $opt in
+        u)
+            USER="$OPTARG"          # -u 后面跟用户名
+            ;;
+        p)
+            PORT="$OPTARG"          # -p 后面跟端口号
+            ;;
+        v)
+            VERBOSE=1               # -v 是开关选项，不带参数
+            ;;
+        h)
+            echo "用法: $0 [-u 用户名] [-p 端口号] [-v] [-h]"
+            exit 0
+            ;;
+        ?)
+            echo "无效选项: -$OPTARG" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# 处理剩余的非选项参数（即没有被 -u/-p 等消耗掉的参数）
+shift $((OPTIND - 1))
+
+# 脚本逻辑（接受特定的参数来...）
+echo "用户名: ${USER:-未设置}"
+echo "端口号: $PORT"
+echo "详细模式: $VERBOSE"
+echo "剩余参数: $@"
+```
+
+### 创建与清理临时文件
+
+```Shell
+mktemp [选项] [mytemp/dir.XXXXXX]
+mktemp -t	           # 在/tmp下创建
+mktemp -d	           # 创建临时目录
+mktemp -p <dir>	     # 指定创建位置	 
+
+trap '清理命令1;命令2;函数' [信号列表]
+# 命令
+' '       # 无命令时，退出无反应
+# 信号
+INT       # Ctrl + C 
+TERM      # kill <PID>
+EXIT      # 正常退出
+```
+
+------
+
+# crond：定时任务
 
 ```Shell
 # cron 服务管理
@@ -20,7 +278,7 @@ crontab -u 用户名            # 操作指定用户的定时任务
 grep CRON /var/log/syslog   # 查看cron任务日志
 
 # 定时任务格式
-[*  *  *  *  *]   [命令]/[bin/bash 脚本路径]   [>/>>]  [文件]  2>&1
+[*  *  *  *  *]   [命令]/[bin/bash 脚本路径]   [>/>>]  [文件日志]  2>&1
  ┬  ┬  ┬  ┬  ┬
  │  │  │  │  └── 星期（0-7，0和7都代表周日）
  │  │  │  └───── 月份（1-12）
@@ -38,275 +296,35 @@ grep CRON /var/log/syslog   # 查看cron任务日志
 @daily/hourly..   # 每日/时...
 ```
 
+# at：一次性任务
 
+```Shell
+# at 服务管理
+sudo apt install at -y
+sudo systemctl start atd    # 启动 atd 守护进程
+sudo systemctl enable atd   # 开机自启
+sudo systemctl status atd   # 检查状态
 
+# 管理 at 命令
+at [时间] -f [有任务的文件]    # 创建一次性任务（交互式输入命令，Ctrl+D 结束）
+at -l                       # 查看当前用户的所有待执行任务（等价于 at -l）
+at -d <编号>                 # 删除指定编号的任务（等价于 at -d <编号>）
+at -b                       # 系统负载低于 0.8 时执行任务（等价于 at -b）
+at -c <编号>                 # 查看指定任务的详细内容
+at -m                       # 任务执行后发送邮件（即使没有输出）
+at -v                       # 显示任务将执行的精确时间（安排前）
+at -q <队列名>               # 指定任务队列（a-z，字母越靠前优先级越高）
+at -t [[CC]YY]MMDDhhmm      # 用固定格式指定时间（如 202607311430
+echo "任务" ｜ batch         # 在系统平均负载低于 0.8 时才执行
 
+# at 任务格式
+> [/usr/bin/命令]/[脚本]  >>  [文件日志]
+> ...
+> ...
+> <Ctrl+D>   # 按 Ctrl+D 保存并退出
 
-
-
-
-
-# at（仅一次的任务）
-
--- 语法
-at [选项] (时间)
-选项:
--f 文件       从指定文件中读取命令，而非交互式输入
--l          列出当前用户的所有 at 任务（等同于 atq 命令）
--d 任务ID 删除指定任务（等同于 atrm 命令）
--m          任务执行后，即使没有输出也发送邮件通知
--c 任务ID 查看指定任务的具体内容
-q           查看任务列表
-时间:
-at 14:30
-at 14:30 2026-05-01
-at 2:30pm
-at 23:59 12/25/26
-at noon        # 中午12:00
-at midnight    # 午夜00:00
-at teatime     # 下午16:00
-at now + 5 minutes   # 5分钟后
-at now + 2 hours     # 2小时后
-at now + 3 days      # 3天后
-at now + 1 weeks     # 1周后
-at now + 2 months    # 2个月后（now可省略）
-at 15:30 + 2 days    # 两天后的15:30
-
--- 常用
-场景1：延迟重启服务（5分钟后重启）
-echo "systemctl restart nginx" | at now + 5 minutes
-场景2：下班后执行长时间任务（今天18:00）
-echo "/home/user/large_report.sh" | at 18:00
-场景3：明天早上提醒
-echo "echo 'Meeting at 10:00' | mail -s 'Reminder' user@example.com" | at 09:30 tomorrow
-场景4：系统维护（凌晨3点）
-at -f /scripts/maintenance.sh 03:00
-场景5：临时关闭服务器（2小时后关机）
-echo "/usr/sbin/shutdown -h now" | at now + 2 hours
-
-
-
-
-
-# cron中脚本顶端里要加上的解释器和命令路径
-#!/bin/bash
-export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-
-# shell
-
--- 变量
-
--- 定义使用
-name="张三"                 # 定义（等号两边不能有空格）
-count=100
-date=$(date +%Y%m%d)       # 命令替换
-echo "姓名: ${name}"        # 使用
-echo "数量: ${count}"
-echo "日期: ${date}"
-readonly PATH="/opt/data"  # 只读变量
-unset temp_var             # 删除变量
-
--- 特殊变量
-$0      # 脚本名称
-$1-$9   # 位置参数（第1-9个参数）
-$#      # 参数个数
-$@      # 所有参数（每个参数独立）
-$*      # 所有参数（当作一个字符串）
-$?      # 上一条命令的退出码（0=成功）
-$$      # 当前 Shell 进程 PID
-$!      # 最后一个后台进程的 PID
-
--- 变量默认
-echo ${var:-default}    # var 为空，输出 default
-echo ${var:=default}    # var 为空，赋值为 default
-echo ${var:+not_empty}  # var 不为空，输出 not_empty
-echo ${var:?error_msg}  # var 为空，输出 error_msg 并退出
-
--- 条件判断
-
--- if
-if [ condition ]; then
-// 执行语句
-elif [ condition2 ]; then
-// 执行语句
-else
-// 执行语句
-fi
-
-[ condition1 ] && [ condition2 ]   # 与（两个都成立）
-[ condition1 ] || [ condition2 ]   # 或（至少一个成立）
-[ ! condition ]                    # 非（取反）
-
--- (condition)
-[ -f "$file" ]     # 是否为普通文件
-[ -d "$dir" ]      # 是否为目录
-[ -e "$path" ]     # 文件/目录是否存在
-[ -s "$file" ]     # 文件存在且不为空
-[ -r "$file" ]     # 是否可读
-[ -w "$file" ]     # 是否可写
-[ -x "$file" ]     # 是否可执行
-[ $a -eq $b ]      # 等于
-[ $a -ne $b ]      # 不等于
-[ $a -gt $b ]      # 大于
-[ $a -lt $b ]      # 小于
-[ $a -ge $b ]      # 大于等于
-[ $a -le $b ]      # 小于等于
-[ "$s1"="$s2" ]    # 等于
-[ "$s1"!="$s2" ]   # 不等于
-[ -z "$str" ]      # 字符串为空
-[ -n "$str" ]      # 字符串不为空
-
--- 循环
-
--- 逐行读取文件
-while read line; do
-echo "读到: $line"
-done < file.txt
-
--- 读取 CSV（指定分隔符）
-while IFS=',' read -r col1 col2 col3; do
-echo "列1: $col1, 列2: $col2"
-done < data.csv
-
--- 带计数
-count=0
-while read line; do
-((count++))
-echo "$count: $line"
-done < file.txt
-
--- 无限循环
-while true; do
-echo "运行中..."
-sleep 60
-done
-
-break       # 跳出循环
-continue    # 跳过本次循环
-exit        # 退出脚本
-return      # 退出函数
-
-for i/letter in {1..10}/{a..z}; do
-echo "$i/$letter"
-done
-
--- 函数
-
-get_date() {
-echo $(date +%Y%m%d)         # 带返回值
-}
-today=$(get_date)            # 赋值
-
-my_func() {
-echo "参数个数: $#"
-echo "所有参数: $@"
-echo "第一个参数: $1"
-echo "第二个参数: $2"
-}
-my_func "hello" "world"      # 输出
-
-check_file() {
-if [ -f "$1" ]; then
-return 0   # 成功          # 返回退出码（0-255）
-else
-return 1   # 失败
-fi
-}
-check_file "/etc/passwd"
-if [ $? -eq 0 ]; then
-echo "文件存在"
-fi
-
--- 错误
-
-set -e           # 任何命令失败立即退出（最常用）
-set -u           # 使用未定义变量时报错
-set -x           # 打印每条执行的命令（调试用）
-set -o pipefail  # 管道中任何命令失败都返回失败
-set -euxo pipefail   # 组合使用
-
-temp_file=$(mktemp)       # 创建临时文件
-temp_dir=$(mktemp -d)
-trap "rm -rf $temp_file $temp_dir" EXIT   # 使用完后删除
-
--- getopts
-
-while getopts "ab:c:" opt; do
-case $opt in
-a)echo "选项 -a 被触发";;
-b)echo "选项 -b 被触发，参数值: $OPTARG";;
-c)echo "选项 -c 被触发，参数值: $OPTARG";;
-\?)echo "无效选项: -$OPTARG"
-exit 1 ;;
-esac
-done
-shift $((OPTIND-1))     # 移除已处理的选项
-echo "剩余参数: $@"      # 处理剩余的位置参数
-./脚本名 -a -b hello -c world file1.txt file2.txt   # 使用
-
--- 模版
-
--- ========== 配置 ==========
-#!/bin/bash
-set -euo pipefail
-readonly SCRIPT_NAME=$(basename $0)
-readonly SCRIPT_DIR=$(cd $(dirname $0) && pwd)
-readonly DATE=${1:-$(date +%Y%m%d)}
-readonly LOG_DIR="/var/log/etl"
-readonly LOG_FILE="${LOG_DIR}/${SCRIPT_NAME%.sh}_${DATE}.log"
-
--- ========== 函数 ==========
-log() {
-local level=$1
-shift
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] [${level}] $*" | tee -a "$LOG_FILE"
-}
-log_info() { log "INFO" "$@"; }
-log_error() { log "ERROR" "$@"; }
-cleanup() {
-log_info "清理临时文件"
-rm -rf /tmp/etl_$$_*
-}
-
--- ========== 主流程 ==========
-trap cleanup EXIT
-log_info "开始执行 ETL，日期: $DATE"
--- 1. 检查输入数据
-INPUT_PATH="/data/raw/dt=${DATE}"
-if ! hdfs dfs -test -e "$INPUT_PATH"; then
-log_error "输入路径不存在: $INPUT_PATH"
-exit 1
-fi
--- 2. 执行处理
-log_info "开始数据清洗"
-hive -f /opt/etl/sql/clean.sql --hivevar DATE=$DATE
--- 3. 检查输出
-OUTPUT_PATH="/data/dwd/dt=${DATE}"
-OUTPUT_COUNT=$(hive -e "SELECT COUNT(*) FROM dwd.table WHERE dt='$DATE'" 2>/dev/null)
-if [ "$OUTPUT_COUNT" -eq 0 ]; then
-log_error "输出表为空"
-exit 1
-fi
-log_info "ETL 完成，输出记录数: $OUTPUT_COUNT"
-
-
-
-# 批量创建用户
-
-#!/bin/bash          
-    # ↑ Shebang，告诉系统用 bash 执行
-while read username; do        
-    # ↑ 逐行读取 users.txt 文件，每行存到 username 变量
-sudo useradd -m -s /bin/bash "$username"
-    # ↑ 创建用户
-    # -m：创建家目录 /home/username
-    # -s /bin/bash：指定登录 shell
-    # sudo：需要 root 权限
-echo "$username:TempPass123" | sudo chpasswd
-    # ↑ 设置初始密码为 TempPass123
-    # chpasswd 接收 "用户名:密码" 格式
-sudo passwd -e "$username"
-    # ↑ -e 参数：强制用户首次登录时修改密码
-done < users.txt
-    # ↑ 重定向：从 users.txt 文件读取输入
+# 时间格式
+at 14:30/2:30pm       # 具体时分（24/12小时制）
+at 10:00 07/31/26     # 具体日期：2026年7月31日上午10:00
+at now/时分 + 2 minutes/hours/days/weeks/months/years # XX时间后的现在/时分
+```
