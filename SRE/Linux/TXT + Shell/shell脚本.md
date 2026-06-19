@@ -39,9 +39,10 @@ main "$@"
 bash script.sh a b       # a,b为用户传入的位置参数，供脚本内部调用
 bash -n script.sh        # 检查脚本有没有语法错误，但不实际运行
 bash -x script.sh        # 打印每一行执行的命令及其参数
+source ./script.sh
 ```
 
-### 输入输出
+### 内置语法
 
 ```Shell
 # 输入
@@ -55,6 +56,7 @@ read -n 1             # 输入限字数
 echo -n "..."         # 不换行输出
 echo "..."            # 输出并解析变量
 echo '...'            # 原样输出字符串
+echo "error" >&2      # 报错信息扔掉
 printf "时间:%d\n" 25  # %d->25
 cat << EOF
 ...............
@@ -62,7 +64,18 @@ cat << EOF
 ...............
 EOF                   # 输出长文本
 
-exit                  # 退出脚本
+# 日期
+date                  # 显示当前时间
+date -r <文件名>       # 文件最后修改时间 
+date -d "2023-04-11 + 2 weeks 3 days" # 计算时间
+date +"%Y-%m-%d %H:%M:%S"             # 自定义时间格式
+
+# 随机数
+$RANDOM               # 0-32767
+$((RANDOM % 101))     # 0-100
+$((RANDOM % 51 + 50)) # 50-100
+
+exit (0/1)            # 退出脚本
 ```
 
 ### 变量
@@ -207,7 +220,7 @@ VERBOSE=0
 
 # 解析选项(u: p: 带参数，h v 不带参数)
 # $opt    ->循环中的当前选项字母
-# $OPTARG	->当前选项的参数值
+# $OPTARG	->当前选项的参数值：用户输入值
 # $OPTIND	->下一个要处理的参数索引
 while getopts "u:p:hv" opt; do
     case $opt in
