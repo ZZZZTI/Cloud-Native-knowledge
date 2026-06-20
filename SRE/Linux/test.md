@@ -436,6 +436,30 @@ exit 0
 
 ```Shell
 #!/usr/bin/env bash
+
+if [ $# -ne 1 ]; then
+    echo "用法：$0 <正整数>"
+    exit 1
+fi
+
+if ! [[ "$1" =~ ^[1-9][0-9]*$ ]]; then
+    echo "用法：$0 <正整数>"
+    exit 1
+fi
+
+NUM="$1"
+
+# 循环创建文件
+for ((i=1; i<=NUM; i++)); do
+    # 生成三位数字文件名，如 file_001.txt
+    filename=$(printf "file_%03d.txt" "$i")
+    
+    if [ -e "$filename" ]; then
+        echo "$filename 已存在，跳过"
+    else
+        echo "这是第 $i 个文件，创建时间为 $(date)" > "$filename"
+    fi
+done
 ```
 
 
@@ -451,7 +475,32 @@ exit 0
 - **陷阱点**：脚本需判断参数个数，少于 2 个则报错退出。
 
 ```Shell
+#!/usr/bin/env bash
+if [[ $# -eq 2 ]]; then
+		echo "请输入两个参数"
+		exit 1
+fi
 
+case $1 in
+    start)
+        systemctl start $2
+        if ! [ $? -eq 0 ]; then
+            echo "启动失败，请检查日志"
+            exit 1
+        fi
+        ;;
+    stop)
+        systemctl stop $2
+        ;;
+    status)
+        systemctl is-active $2 >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            echo "运行中"
+        else
+            echo "未运行"
+        fi
+        ;;
+esac
 ```
 
 ### **Crontab 定时规则撰写（仅需写出 crontab 行）**
