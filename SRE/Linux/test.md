@@ -1,4 +1,4 @@
-> SRE_Linux 运维实战：题目，项目
+>  运维实战：练习，项目
 
 ------
 
@@ -513,7 +513,10 @@ esac
 4. **挑战题**：每月 **1 号到 10 号** 的每天晚上 23:00，执行 `/scripts/backup.sh`。
 
 ```Shell
-
+30 2 1 6 *      /root/annual_clean.sh
+*/5 * * * *     /opt/check_login.sh /var/log/secure
+0 10,15 * * 1-5 /home/user/report.sh
+0 23 * 1-10 *   /scripts/backup.sh
 ```
 
 ### **Cron 中的路径陷阱（纯理论排查）**
