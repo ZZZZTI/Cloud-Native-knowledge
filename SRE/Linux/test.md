@@ -519,44 +519,6 @@ esac
 0 23 * 1-10 *   /scripts/backup.sh
 ```
 
-### **Cron 中的路径陷阱（纯理论排查）**
-
-用户反馈：他在 `/home/admin/` 下写了个脚本 `clean.sh`，里面用到了相对路径 `./logs/`。手动执行 `sh /home/admin/clean.sh` 完美运行，但放入 crontab（`0 2 * * * /home/admin/clean.sh`）后，脚本报错“找不到目录”。
-
-请回答以下 3 个问题：
-
-1. 导致报错的根本原因是什么？
-2. 请列出 **3 种** 不同的修改方案（不修改脚本逻辑的情况下，仅修改 crontab 或脚本开头）。
-3. 如果希望在 crontab 中记录该脚本的标准输出和错误输出到 `/var/log/clean.log`，正确的 crontab 写法应如何添加重定向？
-
-```Shell
-
-```
-
-### **单实例运行锁（防止脚本重复执行）**
-
-编写脚本 `unique_task.sh`，该脚本预计运行 10 分钟（用 `sleep 600` 模拟）。
-
-1. 使用 **`flock`** 或 **`mkdir` 创建锁文件** 的方式，确保同一时间系统内只有该脚本的一个实例在运行。
-2. 如果检测到已有实例在运行，新启动的进程应输出“另一个实例正在运行，退出”，并以状态码 `2` 退出。
-3. **关键点**：无论脚本是正常结束还是被 `kill`，锁文件都必须被释放（提示：使用 `trap` 捕获 `EXIT` 信号）。
-
-```Shell
-
-```
-
-### **脚本的日志函数封装（考察函数与时间戳）**
-
-编写一个脚本 `process_data.sh`，在开头定义一个名为 `log_msg` 的函数：
-
-- 调用格式：`log_msg "INFO" "数据加载完成"`
-- 输出格式：`[2026-06-19 14:30:25] [INFO] 数据加载完成`
-- 要求：所有日志输出**同时**显示在屏幕上，并**追加**写入到 `/var/log/myapp.log` 中。（提示：函数内使用 `tee -a`）
-
-```Shell
-
-```
-
 ### **MySQL（或任意进程）自动重启看门狗**
 
 公司数据库偶尔会因连接数过高而崩溃退出，你需要编写一个**智能看门狗脚本** `db_watchdog.sh`。
@@ -571,7 +533,83 @@ esac
 4. **Cron 调度**：设置 crontab，**每 1 分钟**执行一次该脚本。
 
 ```Shell
+#!/usr/bin/env bash
 
+LOCK_FILE="/tmp/db_watchdog.lock"
+FAIL_COUNT_FILE="/tmp/mysql_fail_count"
+MAX_FAILURES=3
+CHECK_INTERVAL=10   # 每次检查间隔10秒，但此脚本由cron每分钟执行，防误报机制通过文件计数实现
+
+# 日志函数
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> /var/log/db_watchdog.log
+}
+
+# 防止脚本同时运行多个实例（cron可能重叠）
+exec 200>"$LOCK_FILE"
+flock -n 200 || { log "脚本已在运行，退出"; exit 0; }
+
+# 初始化失败计数器
+if [ ! -f "$FAIL_COUNT_FILE" ]; then
+    echo 0 > "$FAIL_COUNT_FILE"
+fi
+FAIL_COUNT=$(cat "$FAIL_COUNT_FILE")
+
+# 检查 MySQL 进程是否存在
+MYSQL_PID=$(pgrep -x mysqld 2>/dev/null | head -1)
+if [ -z "$MYSQL_PID" ]; then
+    # 进程不存在
+    log "ERROR: MySQL crashed at $(date)"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+    echo $FAIL_COUNT > "$FAIL_COUNT_FILE"
+
+    if [ $FAIL_COUNT -ge $MAX_FAILURES ]; then
+        log "CRITICAL: MySQL连续失败${MAX_FAILURES}次，停止重启，请人工介入"
+        # 紧急告警可写单独文件或发送邮件
+        echo "$(date) CRITICAL: MySQL多次崩溃" >> /var/log/db_emergency.log
+        exit 1
+    else
+        # 尝试重启
+        log "尝试启动 MySQL..."
+        systemctl start mysqld 2>&1 | tee -a /var/log/db_watchdog.log
+        # 若 systemctl 不可用，可改为 /etc/init.d/mysqld start
+        sleep 2
+        # 检查启动后是否存活
+        if pgrep -x mysqld >/dev/null; then
+            log "MySQL 启动成功"
+            # 重置计数器
+            echo 0 > "$FAIL_COUNT_FILE"
+        else
+            log "MySQL 启动失败，请检查日志"
+        fi
+    fi
+else
+    # 进程存在，检查端口监听状态
+    if netstat -tlnp 2>/dev/null | grep -q ":3306.*mysqld"; then
+        # 一切正常，重置计数器
+        if [ $FAIL_COUNT -ne 0 ]; then
+            echo 0 > "$FAIL_COUNT_FILE"
+            log "MySQL 恢复正常，重置失败计数"
+        fi
+    else
+        # 进程存在但端口未监听 → 假死
+        log "ERROR: MySQL 进程存在但端口3306未监听，视为假死"
+        # kill 进程
+        kill -9 "$MYSQL_PID" 2>/dev/null
+        sleep 1
+        # 重启
+        systemctl start mysqld 2>&1 | tee -a /var/log/db_watchdog.log
+        # 检查
+        if pgrep -x mysqld >/dev/null; then
+            log "MySQL 假死后重启成功"
+            echo 0 > "$FAIL_COUNT_FILE"
+        else
+            log "MySQL 重启失败"
+            FAIL_COUNT=$((FAIL_COUNT + 1))
+            echo $FAIL_COUNT > "$FAIL_COUNT_FILE"
+        fi
+    fi
+fi
 ```
 
 ------
@@ -585,7 +623,7 @@ esac
 sudo useradd -m -s /bin/bash deploy
 # 设置密码（交互式）
 sudo passwd deploy
-# 将用户加入 sudo 组（Ubuntu/Debian 为 sudo，RHEL/CentOS 为 wheel）
+# 将用户加入 sudo 组
 sudo usermod -aG sudo deploy   # 或 wheel
 # 禁止 root 远程 SSH 登录
 echo "PermitRootLogin no" | sudo tee -a /etc/ssh/sshd_config
@@ -596,13 +634,12 @@ sudo systemctl restart sshd
 ### 配置防火墙，只开放 22, 80, 443 端口。
 
 ```Shell
-# 使用 ufw
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow 22/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw enable
 ```
 
 ### 从源码或包管理器安装 Nginx，并配置一个虚拟主机，指向 /var/www/myapp。
@@ -670,7 +707,6 @@ sudo crontab -e
 ```Shell
 # 安装 stress
 sudo apt install stress -y   # Ubuntu/Debian
-sudo yum install stress -y   # RHEL/CentOS
 # 启动 4 个 CPU 密集型进程，持续 60 秒（后台运行）
 stress --cpu 4 --timeout 60 &
 # 运行 top，按 P 键（大写）按 CPU 使用率排序
