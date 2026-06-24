@@ -6,29 +6,25 @@
 
 
 
-```mermaid
-graph LR
-    CloudNative --> SRE
-    CloudNative --> DEV
-
-    SRE --- Observe
-    SRE --- Linux
-    SRE --- K8S
-    SRE --- Devops
-    SRE --- AliCloud
-
-    DEV --- springboot3.x
-    DEV --- Redis
-    DEV --- Mysql
-    DEV --- Java17
-    
-    Linux --- 资源
-    Linux --- 网络
-    Linux --- 文本
-    Linux --- 脚本
-    Linux --- 文件
-    Linux --- 目录
-    Linux --- 管理
-    Linux --- 安全
-    Linux --- 内核
+```Shell
+.
+├── SRE
+│   ├── Observe
+│   ├── Linux
+│   │   ├── test.md
+│   │   ├── 资源.md
+│   │   ├── 文件.md
+│   │   ├── 文本.md
+│   │   ├── 网络.md
+│   │   ├── 内核.md
+│   │   ├── 目录.md
+│   │   ├── 脚本.md
+│   │   ├── 管理.md
+│   │   └── 安全.md
+│   ├── K8S
+│   ├── Devops
+│   └── AliCloud
+├── DEV
+└── README.md
 ```
+
