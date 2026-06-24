@@ -79,7 +79,7 @@ grep -oE '\b[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\b' sample.txt
 grep -oE '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b' sample.txt
 ```
 
-### **`sed` 的流编辑实战（不修改原文件，仅输出）**
+### **`sed` 的流编辑实战**
 
 假设你有配置文件 `config.ini`，内容含有若干行 `port=8080` 和 `#port=9090`。
 
@@ -91,7 +91,7 @@ sed -n 's/^port=8080/port=443/g,p' config.ini
 sed '/# DEPRECATED/d' config.ini | wc -l
 ```
 
-### **`awk` 的列处理与统计（王牌组合）**
+### **`awk` 的列处理与统计**
 
 使用 `awk` 处理 `/proc/meminfo` 或一个自定义的 CSV 数据（假设有三列：`姓名,部门,薪资`）：
 
@@ -103,7 +103,7 @@ awk -F: '/^Mem/ {print $1 " " $2 " KB"}'  /proc/meminfo
 grep ' 404 ' access.log | awk '{print $1}' | sort | uniq -c | sort -nr | head -3
 ```
 
-### **目录与文件操作（模拟故障排查）**
+### **目录与文件操作**
 
 系统反馈磁盘空间不足，请你在 `/var/log` 目录下完成以下操作（请用命令组合，禁止逐条 `cd`）：
 
@@ -119,7 +119,7 @@ find . -type f -name "*.log" -mtime -3 -size +100M -print >> /tmp/cleanup_list.t
 du -hs ./*/ | sort -hr
 ```
 
-### **文本三剑客（`grep/sed/awk`）实战**
+### **文本三剑客实战**
 
 给定一个 `nginx_access.log` 日志文件（格式：`IP - - [时间] "GET /url" 状态码 字节`）：
 
@@ -139,7 +139,7 @@ awk '{print $1}' nginx_access.log | sort | uniq -c | sort -nr | head -n 5
 
 # 脚本
 
-### **交互式备份脚本（带函数）**
+### **交互式备份脚本**
 
 编写一个脚本 `backup_manager.sh`，实现以下功能：
 
@@ -227,7 +227,7 @@ do_backup "$SOURCE_DIR" "$SUFFIX" "$BACKUP_DIR"
 bash backup_manager.sh -d /dir -f .conf
 ```
 
-### **系统监控脚本（阈值判断）**
+### **系统监控脚本**
 
 写一个脚本 `sys_check.sh`，每执行一次做以下检查：
 
@@ -391,7 +391,7 @@ echo "报告已生成: $REPORT_FILE"
 0 9 * * * /bin/bash /../daily_report.sh
 ```
 
-### **数字彩蛋猜谜游戏（考察 `read`、`if`、`随机数`）**
+### **数字彩蛋猜谜游戏**
 
 编写一个脚本 `guess.sh`：
 
@@ -425,7 +425,7 @@ done
 exit 0
 ```
 
-### **批量文件生成器（考察 `for` 循环与变量拼接）**
+### **批量文件生成器**
 
 编写一个脚本 `batch_create.sh`，接受**一个数字参数**（如 `./batch_create.sh 10`）：
 
@@ -464,7 +464,7 @@ done
 
 
 
-### **服务状态巡检器（考察 `case` 与命令退出码）**
+### **服务状态巡检器**
 
 编写一个脚本 `service_ctl.sh`，接受两个参数：`{start|stop|status}` 和 `服务名`（如 `nginx`）。
 
@@ -503,7 +503,7 @@ case $1 in
 esac
 ```
 
-### **Crontab 定时规则撰写（仅需写出 crontab 行）**
+### **Crontab 定时规则撰写**
 
 请写出满足以下要求的 **crontab 配置行**（无需写脚本内容，只写时间调度部分）：
 
@@ -519,7 +519,7 @@ esac
 0 23 * 1-10 *   /scripts/backup.sh
 ```
 
-### **MySQL（或任意进程）自动重启看门狗**
+### **自动重启看门狗**
 
 公司数据库偶尔会因连接数过高而崩溃退出，你需要编写一个**智能看门狗脚本** `db_watchdog.sh`。
 
@@ -614,7 +614,7 @@ fi
 
 ------
 
-# 综合
+# 基础
 
 ### 创建一个新用户 deploy，赋予 sudo 权限，禁止root远程SSH登录。
 
@@ -680,27 +680,9 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-### 编写一个 Shell 脚本，每天凌晨2点备份 /var/www/myapp 到 /backup 目录，备份文件名包含日期，并删除7天前的旧备份。用 crontab 部署它。
+------
 
-```Shell
-#!/usr/bin/env bash
-BACKUP_DIR="/backup"
-SOURCE_DIR="/var/www/myapp"
-DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="$BACKUP_DIR/myapp_backup_$DATE.tar.gz"
-# 创建备份目录
-mkdir -p "$BACKUP_DIR"
-# 打包压缩
-tar -czf "$BACKUP_FILE" "$SOURCE_DIR"
-# 删除 7 天前的备份文件
-find "$BACKUP_DIR" -name "myapp_backup_*.tar.gz" -type f -mtime +7 -delete
-# 赋予执行权限
-sudo chmod +x /usr/local/bin/backup_myapp.sh
-# 添加 crontab 任务（每天凌晨 2 点执行）
-sudo crontab -e
-# 在编辑器中添加：
-0 2 * * * /usr/local/bin/backup_myapp.sh
-```
+# 排查
 
 ### 模拟CPU跑满（或用 stress 工具），然后用 top 和 ps 找到该进程并结束它。
 
