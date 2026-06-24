@@ -22,7 +22,13 @@ graph LR
     DEV --- Mysql
     DEV --- Java17
     
-    Linux --- TXT+Shell
-    Linux --- Basic+Safe
-    Linux --- Monitor+Solve
+    Linux --- 资源
+    Linux --- 网络
+    Linux --- 文本
+    Linux --- 脚本
+    Linux --- 文件
+    Linux --- 目录
+    Linux --- 管理
+    Linux --- 安全
+    Linux --- 内核
 ```
