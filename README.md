@@ -5,7 +5,7 @@
 > I'm still learning......
 
 ```css
-.
+Knoeledge
 ├── DEV
 │   ├── Java17
 │   │   ├── git.md
@@ -43,13 +43,20 @@
 │   │   └── 资源.md [负载,CPU,内存,磁盘I/O与空间,进程,日志系统与轮替]
 │   └── Observe
 │       └── laki.md
-├── KnowledgeGit.sh
+├── KnowledgeGit.sh[a simple git script]
 └── README.md
 ```
 
+### My projects:
+
+一个由Java开发，在阿里云上的云原生+微服务平台
+
+https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
 
+一个自动化交付，可管理k8s多集群，与AI结合的运维架构
 
+https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
 
 
