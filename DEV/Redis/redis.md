@@ -1,10 +1,11 @@
-```shell
--- redis
+> redis：缓存
 
+------
 
-# 数据结构
+### 数据结构
 
-    一般
+```Shell
+# 一般操作
 -- 查找键
 KEYS *[模糊匹配]
 -- 查看键的过期时间
@@ -14,7 +15,7 @@ FLUSHALL
 -- 事务
 MULTI---xxx,xxx---EXEC   
 
-    String(字符串)
+# String(字符串)
 -- 设置键的值(设置键的过期时间)
 SET key value [EX seconds]
 -- 批量设置
@@ -26,7 +27,7 @@ MGET k1 k2 k3
 -- 字符串长度
 STRLEN key
 
-    List(栈/队列)
+# List(栈/队列)
 -- 在键中往左右推入值
 LPUSH/RPUSH key v1 v2 v3
 -- 获取键中指定下标/范围的元素
@@ -38,7 +39,7 @@ LTRIM key start stop
 --列表长度
 LLEN key
 
-    Set(元素不能重复的集合)
+# Set(元素不能重复的集合)
 -- 添加元素
 SADD key m1 m2 m3
 -- 删除/判断是否存在 元素
@@ -50,7 +51,7 @@ SMEMBERS key
 -- 随机弹出元素i个
 SPOP key i
 
-    Sorted Set(有序双列集合)
+# Sorted Set(有序双列集合)
 -- 添加元素(score/member)
 ZADD key (s1 m1) (s2 m2) (s3 m3)
 -- 升序获取范围的m (s)
@@ -60,7 +61,7 @@ ZSCORE key member
 -- 获取成员升/降序排名
 ZRANK/ZREVRANK key member
 
-    Hash(键值对)
+# Hash(键值对)
 -- 设置键中的多个字段的名和值
 HSET key (f1 v) (f2 v)
 -- 获取键中多个字段的值
@@ -72,7 +73,7 @@ HLEN key
 --获取所有字段名或值
 HKEYS / HVALS
 
-    Stream(小型消息队列)
+# Stream(小型消息队列)
 -- 订阅消息
 subscribe channel
 -- 发布消息(id)
@@ -87,7 +88,7 @@ XGROUP CREATE key groupname id/$
 -- 在组里添加消费者
 XCRATECONSUMER key groupname c1 c2 c3
 
-    Geospatial(地理空间)
+# Geospatial(地理空间)
 -- 添加地点
 GEOADD key longitude latitude member
 -- 获取经纬度
@@ -97,7 +98,7 @@ GEODIST key member1 member2 [km/m]
 -- 查询半径内的另一个地点
 GEOSEARCH key m1 BYRADIUS 300 km
 
-    HyperLogLog(基数统计)
+# HyperLogLog(基数统计)
 -- 添加元素
 PFADD key e1 e2 e3
 -- 返回近似基数
@@ -105,18 +106,18 @@ PFCOUNT key
 -- 合并多个 HyperLogLog
 PFMERGE destkey key1 key2   
 
-    Bitmap(位图)
+# Bitmap(位图)
 -- 设置位数的值
 SETBIT key offset(0/1/2/3...) value(0/1)
 -- 获取值
 GETBIT key offset
 -- 统计值为1的数量
 BITCOUNT key [start end]
+```
 
+### 八股文
 
-
-
-# 八股文
+```Shell
 redis是什么?
 Redis架构是怎么样的？
 怎么设计redis？
@@ -223,3 +224,4 @@ Redis集群跨槽操作是什么
 Redis槽位重新分配是什么
 Redis客户端Slot缓存是什么
 ```
+
