@@ -1,4 +1,4 @@
-# Welcome to ZTI's CloudNative knowledge repository!
+# Welcome to ZTI's CloudNative knowledge md repository!
 
 > [!IMPORTANT]
 >
@@ -49,12 +49,12 @@ Knoeledge
 
 ### My projects:
 
-一个由Java开发，在阿里云上的云原生+微服务平台
+一个由Java开发，在阿里云监控的云原生+微服务平台：
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
 
-一个自动化交付，可管理k8s多集群，与AI结合的运维架构
+一个自动化交付，可管理k8s多集群，与AI结合的运维架构：
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
