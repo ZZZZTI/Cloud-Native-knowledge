@@ -684,11 +684,9 @@ sudo systemctl reload nginx
 
 # 排查
 
-### 模拟CPU跑满（或用 stress 工具），然后用 top 和 ps 找到该进程并结束它。
+### 模拟CPU跑满，然后用 top 和 ps 找到该进程并结束它。
 
 ```Shell
-# 安装 stress
-sudo apt install stress -y   # Ubuntu/Debian
 # 启动 4 个 CPU 密集型进程，持续 60 秒（后台运行）
 stress --cpu 4 --timeout 60 &
 # 运行 top，按 P 键（大写）按 CPU 使用率排序
@@ -707,5 +705,97 @@ kill -9 12345
 ```Shell
 # 直接 grep（注意日期格式，如 "May 23"）
 sudo grep "Failed password for root" /var/log/auth.log | grep "$(date '+%b %e')"
+```
+
+------
+
+### 日志审计与自动归档清理系统
+
+**背景**：公司的 `/var/log/myapp/` 目录经常写满，导致服务崩溃。你需要写一个脚本 `app_log_manager.sh`，实现“分析 -> 归档 -> 清理”的全自动闭环。
+
+**阶段 1：文件与目录预处理（考察 `find` + 目录规范）**
+
+1. 脚本启动时，检查 `/var/log/myapp/` 是否存在，若不存在则创建，并写入一条初始化日志。
+2. 使用 `find` 找出该目录下 **7天前** 修改过的、后缀为 `.log` 的文件，将其**移动**到 `/data/archive/$(date +%Y%m)/` 目录下（年月目录需自动创建）。
+
+**阶段 2：文本内容深度分析（考察 `awk` / `grep` / `sed`）**
+
+1. 针对 **当前正在写入** 的 `access.log`，使用 `awk` 统计出 **状态码 500 出现次数最多** 的 Top 3 接口（URL），并将结果写入 `/tmp/top_error.txt`。
+2. 使用 `sed` 将 `access.log` 中所有合法的 IPv4 地址（如 `192.168.1.1`）**替换**为 `[REDACTED]`，生成一份脱敏后的临时文件 `/tmp/access_desensitized.log`（**不修改原文件**）。
+
+**阶段 3：脚本健壮性与防误判（考察变量与逻辑）**
+
+1. 脚本必须带参数 `--mode={check|clean|full}`：
+   - `check`：仅分析日志大小，若总大小超过 2GB 则发出警告（写入 `/var/log/myapp/warn.log`）。
+   - `clean`：只执行阶段 1 的移动归档操作。
+   - `full`：按顺序执行阶段 1 + 阶段 2。
+2. **自愈机制**：如果归档目录 `/data/archive/` 的磁盘使用率超过 85%，则自动删除该目录下 **180天前**的 `.tar.gz` 旧包。
+
+**阶段 4：Cron 定时调度与日志追踪**
+
+1. 设置 Crontab，要求在 **每周日凌晨 2:30** 自动执行 `full` 模式。
+2. **踩坑题**：由于脚本中使用了 `awk`、`sed` 和自定义目录，请在脚本开头用哪种方式确保 Cron 能正确找到这些命令？（写出具体代码行，比如 `export PATH=...` 或使用绝对路径）
+
+```Shell
+#!usr/bin/env bash
+
+if [ -z /var/log/myapp/ ]; then
+echo "$date,初始化日志" > /var/log/myapp/
+fi
+
+find /var/log/myapp/ -name "*.log" -mtime +7 -exec 
+```
+
+------
+
+### 服务器配置变更“吹哨人”系统
+
+**背景**：安全部门要求监控 `/etc/passwd` 和 `/etc/ssh/sshd_config` 是否被恶意篡改。你需要写一个脚本 `config_watch.sh`，**不用监控工具，纯靠命令组合**。
+
+**阶段 1：基线快照与比较（考察文件差异 `diff`）**
+
+1. 首次运行脚本时（带参数 `--init`），将 `/etc/passwd` 和 `/etc/sshd_config` 的**哈希值（md5sum）** 以及**权限（ls -l）** 保存到 `~/baseline/` 目录下。
+2. 后续运行（不带参数）时，重新计算当前文件的哈希值，并与基线比对。若有变化，使用 `diff -u` 将新旧文件的差异追加到 `/var/log/config_change.log` 中。
+
+**阶段 2：敏感行过滤（考察 `grep -v` 与正则）**
+
+1. 在比对前，使用 `grep -v` 过滤掉 `/etc/sshd_config` 中所有的**空行**和以 `#` 开头的注释行，仅对**有效配置行**进行比对，减少误报。
+2. 编写一行命令，从 `/etc/passwd` 中提取出所有 **UID 大于等于 1000** 的普通用户登录 Shell（第7字段），如果发现其中有 `/bin/bash` 或 `/bin/sh`，将其用户名记录到告警列表中（考察 `awk` 条件筛选）。
+
+**阶段 3：定时扫描与主动告警（考察 Cron + 脚本交互）**
+
+1. 设置 Crontab，**每隔 10 分钟**执行一次 `config_watch.sh`。
+2. 若检测到变更，脚本除了写日志外，还需调用 `logger` 命令向系统日志（`/var/log/syslog`）写入一条 `[CRITICAL]` 级别的告警。
+3. **进程锁**：由于每 10 分钟执行一次，如果某次 `diff` 比对卡住了（文件很大），请使用 `flock -n` 确保同一时间只有一个检查进程在跑，防止系统资源耗尽。
+
+```Shell
+
+```
+
+------
+
+### 恶意进程追踪与应急自愈（终极挑战）
+
+**背景**：服务器疑似被入侵，CPU 经常飙高（模拟：有一个名为 `evil_miner` 的假进程）。你需要手写一套“发现 -> 定位 -> 清理 -> 固防”的应急脚本 `emergency_killer.sh`。
+
+**阶段 1：可疑进程定位（考察 `/proc` 目录与 `ps` 组合）**
+
+1. 使用 `ps aux` 配合 `sort -nr -k3` 找出当前占用 CPU 最高的前 3 个进程。
+2. 针对 PID，进入 `/proc/[pid]/` 目录，使用 `ls -l exe` 找出该进程对应的**可执行文件绝对路径**。
+3. 如果该进程的可执行文件位于 `/tmp/`、`/var/tmp/` 或 `/dev/shm/` 这些可疑临时目录，则判定为“高度可疑”。
+
+**阶段 2：文本提取与定时任务清除（考察 `crontab` 与 `sed`）**
+
+1. 如果判定为可疑，脚本应强制 `kill -9` 该 PID。
+2. **清除持久化**：恶意软件通常会在 Crontab 里写自启动。请编写逻辑，自动检测当前用户的 Crontab（`crontab -l`）和系统 Crontab（`/etc/crontab`），使用 `sed -i` 删除包含 `evil_miner` 或可疑文件名的任务行。
+3. **加固写入**：清理后，在 `/etc/hosts.deny` 中追加一行 `ALL: 恶意IP（模拟）`（此处用 `echo` 追加模拟即可）。
+
+**阶段 3：定时高频巡检（考察 Cron 的特殊写法）**
+
+1. 设置 Crontab，要求**每 2 分钟**执行一次该脚本。
+2. **日志切割**：由于脚本每 2 分钟运行一次，`/var/log/killer.log` 会飞速膨胀。请在脚本中内置逻辑：如果该日志文件大于 50MB，则使用 `mv` 将其重命名为 `killer_$(date +%Y%m%d_%H%M%S).log`，并重新创建空日志（模拟 `logrotate` 的简陋版）。
+
+```Shell
+
 ```
 

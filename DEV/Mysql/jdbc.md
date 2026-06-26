@@ -164,7 +164,7 @@ public class JDBC {
 }
 ```
 
-```
+```properties
 ## druid连接池文件
 #注册驱动
 driverClassName=com.mysql.cj.jdbc.Driver

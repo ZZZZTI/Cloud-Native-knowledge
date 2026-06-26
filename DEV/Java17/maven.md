@@ -1,5 +1,10 @@
-```bash
-# pom.xml :DEV_Tools 项目的核心配置文件
+> Maven：项目的依赖、配置与打包
+
+------
+
+### pom.xml（项目的核心配置文件）
+
+```xml
 <project>
 
     <!-- 坐标：唯一标识一个项目:对应本地仓库路径>
@@ -11,9 +16,11 @@
     <name>maven-demo</name>               <!-- 项目名称 -->
     <url>http://maven.apache.org</url>    <!-- 项目网站 -->
 
+  
     <!-- 文件属性 -->
     <properties>...</properties>          <!-- 定义一个标签(在配置文件中引用) -->       
 
+  
     <!-- 依赖列表 -->                      <!-- mvnrepository.com -->
     <dependencies>
         <groupId>......</groupId>  
@@ -29,18 +36,24 @@
         </exclusions>
     </dependencies>
     
+  
     <!-- 插件配置 -->
     <build>...</build>
     
+  
     <!-- 版本统一管理(手动选择子工程的依赖) -->
     <dependencyManagement>...</dependencyManagement>
     
+  
     <!-- 多模块聚合 -->
     <modules>...</modules>
 
 </project>
+```
 
+### maven操作
 
+```Shell
 # 项目结构
 maven-learning/
 ├── pom.xml              ← 核心配置文件
@@ -56,10 +69,9 @@ maven-learning/
 # Lifecycle :项目生命周期
 clean → compile → test → package → install → deploy
 ↓         ↓        ↓        ↓         ↓         ↓
-删除      编译     运行      打包      安装到    发布到
+删除      编译      运行     打包      安装到    发布到
 target   代码      单元      jar       本地      远程
 测试               仓库      仓库
-
 
 
 -- 跳过测试打包
@@ -69,3 +81,4 @@ mvn dependency:tree
 -- 分析未使用或未声明的依赖
 mvn dependency:analyze
 ```
+

@@ -1,4 +1,10 @@
-```bash
+> git：版本管理工具
+
+------
+
+### git配置和操作
+
+```Shell
 # 本地仓库配置
 user.name=ZZZZTI
 user.email=19375928071@163.com
@@ -56,8 +62,11 @@ git fetch （仓库）（分支）/(-all)
 git pull
 -- 本地仓库推送到远程仓库[选择分支]
 git push [-u gitxx feat1]
+```
 
+### 管理版本和分支
 
+```Shell
 # 分支
 -- 切换分支
 git switch feat1
@@ -68,8 +77,4 @@ git merge feat2
 -- 回退分支
 git reset --mixed/soft/head 版本ID 
 ```
-
-
-
-
 
