@@ -5,9 +5,9 @@
 > I'm still learning......
 
 ```css
-Knoeledge
+Knowledge
 ├── DEV
-│   ├── Java17
+│   ├── Java17LTS
 │   │   ├── git.md
 │   │   └── maven.md
 │   ├── Mysql
@@ -44,7 +44,7 @@ Knoeledge
 │   └── Observe
 │       └── laki.md
 ├── KnowledgeGit.sh[a simple git script]
-└── README.md
+└── README.md[you reading]
 ```
 
 ### My projects:
