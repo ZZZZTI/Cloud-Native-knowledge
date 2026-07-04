@@ -15,32 +15,6 @@ Spring Boot内嵌了Tomcat，但它本质上是**Servlet容器**的升级封装�
 
 
 
-
-
-
-
-
-
-
-
-### 2. 数据库访问进阶（从SQL到Java的桥梁）
-
-你已会MySQL基础，但Spring Boot操作数据库全靠框架，你必须先理解框架在“代理”什么。
-
-- **JDBC核心**：`Connection`、`PreparedStatement`、`ResultSet`（必须手写一遍原生JDBC增删改查，理解Connection的获取与释放）。
-- **数据库连接池原理**：明白为什么需要连接池（Druid/HikariCP），理解`maxActive`、`maxWait`等参数含义。
-- **事务本能**：理解MySQL的**事务隔离级别（读未提交、读已提交、可重复读）** 以及**脏读、幻读**。Spring Boot的`@Transactional`注解底层就是基于此。
-
-
-
-
-
-
-
-
-
-
-
 ### 3. JavaSE中被忽略的“框架级”语法（极其重要）
 
 Spring Boot底层充斥大量的反射、代理和Lambda，学完JavaSE基础语法后，必须重点回头补这3个点：
