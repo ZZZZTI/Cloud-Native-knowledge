@@ -49,7 +49,7 @@ Knowledge
 
 ### My projects:
 
-一个由Java开发，在阿里云监控的云原生+微服务平台：
+一个由Springboot3.5开发，在阿里云监控的云原生+微服务平台：
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
