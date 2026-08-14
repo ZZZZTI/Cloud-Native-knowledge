@@ -1,4 +1,4 @@
-# Welcome to ZTI's CloudNative knowledge repository!
+# Welcome to ZZZZTI's CloudNative knowledge repository!
 
 > [!IMPORTANT]
 >
@@ -20,9 +20,9 @@
 │   ├── docker.md
 │   └── k8s.md
 ├── Linux
-│   ├── 内核.md[物理磁盘,分区,文件系统,LVM,挂载,启动流程]
-│   ├── 安全.md[用户与组,权限,防火墙,SSH加固,强制访问,日志审计]
-│   ├── 文件.md[文件的查找,创删,复制,移动,比较,打包解压,传输]
+│   ├── 内核.md [物理磁盘,分区,文件系统,LVM,挂载,启动流程]
+│   ├── 安全.md [用户与组,权限,防火墙,SSH加固,强制访问,日志审计]
+│   ├── 文件.md [文件的查找,创删,复制,移动,比较,打包解压,传输]
 │   ├── 文本.md [文本内容的编辑与处理：管道,三剑客,vim]
 │   ├── 目录.md [重要目录和文件]
 │   ├── 管理.md [服务管理,定时任务,运行级别,作业与终端,软件包管理]
@@ -39,8 +39,8 @@
 │   ├── maven.md
 │   ├── nginx.md
 │   └── redis.md
-├── KnowledgeGit.sh[git script]
-└── README.md[you reading]
+├── KnowledgeGit.sh [git script]
+└── README.md [you reading]
 ```
 
 ### My projects:
