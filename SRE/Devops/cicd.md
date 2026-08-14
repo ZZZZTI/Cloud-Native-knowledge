@@ -1,1 +1,0 @@
-Jenkins + GitLab CI/GitHub Actions
