@@ -1,4 +1,4 @@
-# Welcome to ZTI's CloudNative knowledge repository!
+# Welcome to ZTI's ☁️CloudNative knowledge repository!
 
 > [!IMPORTANT]
 >
