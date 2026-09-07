@@ -33,7 +33,7 @@ docker stop $(docker ps -q)
 docker container prune -f
 
 
-# Dockerfile
+# Dockerfile(要做什么)
 
 -- 使用源镜像来创建镜像
 FROM <python:3.11-slim>
