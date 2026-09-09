@@ -52,7 +52,7 @@ http {
                 '$status $body_bytes_sent "$http_referer" '
                 '"$http_user_agent" "$http_x_forwarded_for"';
 
-    # 负载均衡算法:默认轮询
+    # 负载均衡算法（默认轮询）
     upstream backend_servers {
         ip_hash/least_conn;             # 用户粘性算法/最少连接算法
         server localhost:3001 weight=2; # 加权算法
@@ -80,6 +80,10 @@ http {
             proxy_cache...
         }
     }
+    
+    server {
+    ...........
+    }
 }
 ```
 
@@ -93,22 +97,26 @@ http {
   - index、autoindex 配置
   - 静态文件缓存头（expires、Cache-Control）
   - Gzip 压缩（gzip on、gzip_types）
+  
 - 3.2 反向代理
   - proxy_pass 指令
   - 代理头设置（X-Real-IP、X-Forwarded-For）
   - 代理缓冲区设置（proxy_buffering、proxy_buffer_size）
   - 代理超时控制（proxy_connect_timeout、proxy_read_timeout）
+  
 - 3.3 负载均衡
   - upstream 定义后端服务器池
   - 负载均衡算法：轮询、加权轮询、least_conn、ip_hash、hash
   - 健康检查（被动：max_fails/fail_timeout；主动：健康检查模块）
   - 服务器状态标记：down、backup、max_conns
+  
 - 3.4 HTTPS 与 SSL/TLS
   - 证书配置（ssl_certificate、ssl_certificate_key）
   - 安全协议与加密套件（ssl_protocols、ssl_ciphers）
   - 强制跳转 HTTPS（return 301 https://$server_name$request_uri;）
   - HSTS 配置
   - OCSP Stapling 优化
+  
 - 3.5 四层代理（stream 模块）
   - TCP/UDP 转发
   - SNI 路由转发
