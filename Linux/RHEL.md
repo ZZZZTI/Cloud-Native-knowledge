@@ -12,7 +12,7 @@
 安装软件                    dnf install <package>               apt install <package>
 删除软件                    dnf remove <package>                apt remove <package>
 更新所有软件                dnf update                          apt update && apt upgrade
-更新特定软件                dnf update <package>                apt install --only-upgrade <package>
+更新特定软件                dnf update <package>      apt install --only-upgrade <package>
 搜索软件包                  dnf search <keyword>                apt search <keyword>
 查看软件包信息              dnf info <package>                  apt show <package>
 列出已安装包                dnf list installed                  apt list --installed
@@ -20,7 +20,7 @@
 安装本地RPM包               rpm -ivh package.rpm                dpkg -i package.deb
 查看RPM包信息               rpm -qi package                     dpkg -s package
 列出RPM包文件               rpm -ql package                     dpkg -L package
-安装软件组                  dnf groupinstall "Server"           apt install <package> (无组概念)
+安装软件组                 dnf groupinstall "Server"       apt install <package> (无组概念)
 仓库配置文件                /etc/yum.repos.d/*.repo             /etc/apt/sources.list
 清理缓存                    dnf clean all                       apt clean
 ```
@@ -30,17 +30,13 @@
 ```Shell
 操作目的                    RHEL 10 (firewalld)                  Ubuntu (ufw)
 ─────────────────────────────────────────────────────────────────────────────────
-查看当前防火墙规则          firewall-cmd --list-all             ufw status verbose
-查看所有区域                firewall-cmd --get-zones            (无区域概念)
-查看默认区域                firewall-cmd --get-default-zone     (无区域概念)
-添加TCP端口(永久)           firewall-cmd --add-port=8080/tcp    ufw allow 8080/tcp
-                           --permanent                          
-添加UDP端口(永久)           firewall-cmd --add-port=53/udp      ufw allow 53/udp
-                           --permanent                          
-添加服务(永久)              firewall-cmd --add-service=http     ufw allow http
-                           --permanent                          
-移除端口(永久)              firewall-cmd --remove-port=8080/tcp ufw delete allow 8080/tcp
-                           --permanent                          
+查看当前防火墙规则         firewall-cmd --list-all             ufw status verbose
+查看所有区域              firewall-cmd --get-zones            (无区域概念)
+查看默认区域             firewall-cmd --get-default-zone     (无区域概念)
+添加TCP端口(永久)       firewall-cmd --add-port=8080/tcp    ufw allow 8080/tcp --permanent  
+添加UDP端口(永久)       firewall-cmd --add-port=53/udp      ufw allow 53/udp --permanent    
+添加服务(永久)          firewall-cmd --add-service=http     ufw allow http --permanent      
+移除端口(永久)    firewall-cmd --remove-port=8080/tcp  ufw delete allow 8080/tcp-permanent  
 重载防火墙                  firewall-cmd --reload               ufw reload
 启用防火墙                  systemctl enable firewalld          ufw enable
 查看防火墙状态              systemctl status firewalld          ufw status
