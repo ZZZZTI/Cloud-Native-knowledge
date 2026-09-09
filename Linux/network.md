@@ -24,8 +24,13 @@
 ### 基础配置与测试
 
 ```Shell
+ip [选项] [对象] [命令] [参数]
+# 选项	-s  （统计）  -4  （仅IPv4）   -6   （仅IPv6）  -c   （彩色输出）
+# 对象	link（网卡）  addr（IP地址）   route（路由）     neigh（ARP表）
+# 命令	show（查看）  add （添加）     del  （删除）     set  （修改）    flush（清空）
+
 # IP与网卡配置
-ip -br a                          # 简洁查看所有网卡IP地址
+ip -br a                          # 简洁查看所有网卡IP地址(ifconfig)
 ip a s [show eth0]                # 查看详细IP配置（网卡）
 ethtool [-S] eth0                 # 查看网卡物理/驱动状态：Speed，Duplex（硬件统计）
 ip -s link show eth0              # 查看网卡错误计数：RX errors / TX errors / dropped
@@ -40,12 +45,21 @@ ip rule show                      # 查看策略路由规则
 ip neigh del 192.168.1.1 dev eth0 # 手动删除某个错误的ARP记录（刷新后自动学习）
 
 # 网络连通性测试
-ping [-I eth0] -c 4 8.8.8.8       # 测试基础连通性（指定源IP）
+ping [-I eth0] -c 4 8.8.8.8         # 测试基础连通性（指定源IP）
 # connect: Network is unreachable → 本机没有去往目标的路由（缺网关）
 # 100% packet loss → 对方没回包（可能禁ping、路由不通、防火墙丢包）
 # time=100ms，有丢包 → 线路质量差
-ip route get 8.8.8.8              # 查看去往特定IP的路由走向（选路测试）
-mtr -r -c 10 8.8.8.8              # 路由追踪（实时显示每一跳的延迟和丢包率）
+
+telnet <ip> <端口>                   # 测试任意 TCP 端口的连通性
+^]+quit退出
+# Connected to xxx....     端口开放，服务正常	    防火墙放行，服务在监听
+# Connection refused	     端口未开放或服务未启动	 目标机器没监听该端口，或防火墙拒绝
+# Connection timed out	   端口被防火墙拦截（丢包）	防火墙规则丢弃了包，或目标 IP 不可达
+# Unknown host	           域名解析失败	          DNS 配置问题
+# Network is unreachable	 路由不通              网络配置问题
+
+ip route get 8.8.8.8                   # 查看去往特定IP的路由走向（选路测试）
+mtr -r [-c 5 -i 1] [--tcp -P] 8.8.8.8  # 路由追踪（实时显示每一跳的延迟和丢包率）
 ```
 
 ### 传输与应用层
@@ -70,20 +84,29 @@ dig +short www.baidu.com          # 快速解析域名（+short只返回IP，干
 dig @114.114.114.114 www.baidu.com
 nslookup www.baidu.com            # 指定DNS服务器测（测试内网DNS是否正常）
 time dig +short www.baidu.com     # 测试DNS解析耗时
-curl -v http://192.168.1.100:80   # HTTP 服务测试
+
+curl -v http://192.168.1.100:80   # HTTP/HTTPS服务测试
 ```
 
 ### 抓包分析
 
 ```Shell
-tcpdump [-i eth0][-c 50][-nn][host 192.168.1.100]/[(tcp)port 80][-w /tmp/capture.pcap]  
-#         网卡     数量  不解析        特定主机           特定端口        保存为pcap文件
+tcpdump [-i eth0] [-c 6] [-nn]  [-q]  [过滤]  [-w /tmp/capture.pcap]  
+#        指定网卡    数量   不解析  精简             保存为pcap文件
+
+过滤:
+src/dst host <ip>   # 源/目标主机
+src/dst port <端口>  # 源/目标端口
+net  <网段>
+host <域名>
+
+输出格式：时间戳 协议 源IP.源端口 > 目标IP.目标端口: 标志 序列号 确认号 窗口 长度
 # 如果看到只有 SYN（从客户端来），没有 SYN-ACK（从服务器回）→ 防火墙丢弃或服务未监听
 # 如果看到 SYN -> SYN-ACK -> ACK（三次握手完整）→ 网络层没问题，查应用层
 # 如果看到 RST 包 → 服务拒绝了连接（端口没开或者防火墙 reject）
 
 # 抓取SYN包（排查握手失败，-v显示详细信息）
-tcpdump -i eth0 -nn 'tcp[tcpflags] & (tcp-syn) != 0'
+tcpdump -i eth0 -c 6 -nn 'tcp[tcpflags] & (tcp-syn) != 0'
 ```
 
 ### 流量
