@@ -22,27 +22,26 @@ sudo ln -s /etc/nginx/sites-available/newsite  /etc/nginx/sites-enabled/
 | **`/etc/nginx/sites-available/`**        | 存放所有站点的配置   |
 | **`/etc/nginx/sites-available/default`** | 站点模版             |
 | **`/etc/nginx/sites-enabled/`**          | 存放生效站点的软链接 |
+| `/var/www/mysite/index.html`             | 网页配置文件         |
 
 ### 文件配置结构
 
-```Shell
+```nginx
 # 全局配置
 user www-data;                         # 运行进程的用户
 worker_processes auto;                 # 工作进程数
 pid /run/nginx.pid;                    # 进程pid
 error_log /var/log/nginx/error.log;    # 错误日志
 
-
 # 事件模型
 events {
-    worker_connections 1024;     # 每个进程最大连接数
-    use epoll;                   # 事件驱动模型
+    worker_connections 1024;           # 每个进程最大连接数
+    use epoll;                         # 事件驱动模型
 }
-
 
 # 网站协议配置
 http {
-    include /etc/nginx/conf.d/*.conf;  # 引入其他站点配置文件
+    include /etc/nginx/conf.d;         # 引入其他站点配置文件
     sendfile on;                       # 启用高效文件传输
     keepalive_timeout 65;              # 长连接超时时间
     access_log/error_log               # HTTP 层面的访问日志和错误日志

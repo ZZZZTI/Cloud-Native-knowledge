@@ -1,36 +1,40 @@
-```shell
-# 离线容器：docker
+> 容器化平台，用来构建，部署，运行应用
 
-# 容器镜像管理
+------
 
--- 查看本地镜像
-docker images
--- 运行镜像
-docker run  <镜像名>
-(-d:后台运行)
-(-rm:退出自动删除)
-(-p:端口)
-(--name 起名)
-(--network host/none/)
-(-v 主机:容器)
-(-e 自定义变量/操作)
+### 容器镜像管理
 
--- 删除镜像
-docker rmi <镜像名>
--- 查看运行中的容器[已停止]
-docker ps [-a]/-l/-q
--- 停止/开启容器
-docker stop/start/kill <容器ID>
--- 删除容器
-docker rm <容器ID>
--- 在容器中执行命令
-docker exec -it <容器名或ID> bash
--- 查看日志
-docker logs <容器名或ID>
--- 停止所有运行中的容器
-docker stop $(docker ps -q)
--- 删除所有已停止的容器
-docker container prune -f
+```dockerfile
+docker ps -a/l/g            # 查看运行的容器[已停止/最近创建/只显示容器ID]
+docker stop <容器ID>         # 停止容器
+docker start <容器ID>        # 开启容器
+docker kill <容器ID>         # 强制停止容器
+docker rm <容器ID>           # 删除容器
+docker logs <容器名或ID>      # 查看日志
+docker stop $(docker ps -q)  # 停止所有运行中的容器
+docker container prune -f    # 删除所有已停止的容器
+docker exec -it <容器名或ID> bash  # 在容器中执行命令
+
+docker images               # 查看本地镜像
+docker rmi <镜像名>          # 删除镜像
+docker run [选项] <镜像名>    # 运行镜像
+-d   # 后台运行
+-rm  # 退出自动删除
+-p <主机端口>:<容器端口>
+--name <容器名>
+--network host
+-v <主机路径>:<容器路径>
+-e <变量名>=<值>
+```
+
+
+
+
+
+
+
+```Shell
+
 
 
 # Dockerfile(要做什么)
@@ -87,7 +91,13 @@ docker exec app ping mysql
 docker network rm <名称>              
 -- 删除未使用的网络
 docker network prune 
+```
 
+
+
+
+
+```Shell
 
 # Docker Compose
 
@@ -142,3 +152,30 @@ docker compose down
 -- 停止并删除容器、网络、卷
 docker compose down -v
 ```
+
+### 架构
+
+```Shell
++-------------------+               +-----------------------------+
+|   Docker Client   |    <---->     |        Docker Daemon        |
+|   (docker CLI)    |     API       |         (dockerd)           |
++-------------------+               +--------------+--------------+
+接收用户命令，通过 API 调用 daemon      管理镜像、容器、网络、卷，接收 API                                                                          |
+                                     +-------------+-------------+
+                                     |                           |
+                              +------v------+             +------v------+
+                              | containerd  |             |   Registry  |
+                              +------+------+             +-------------+
+                       容器运行时管理，负责生命周期、镜像拉取     存放和分发镜像
+                                     |
+                              +------v------+
+                              |    runc     |
+                              +------+------+
+                        真正创建和运行容器的 OCI 运行时
+                                     |
+                              +------v------+
+                              |  Container  |
+                              +-------------+
+                                    容器
+```
+
