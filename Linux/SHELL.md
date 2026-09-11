@@ -8,13 +8,13 @@
 #!/usr/bin/env bash     
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 set -euo pipefail
-# ============================================================
+# =================================
 # 脚本名称: script.sh
 # 功能描述: .........
-# 作者:    nbbro
+# 作者   : nbbro
 # 创建日期: 2026-06-18
-# 版本:     1.0
-# ============================================================
+# 版本   : 1.0
+# =================================
 # ---------- 全局变量配置 -----------
 readonly BACKUP_SOURCE="/data"
 readonly BACKUP_DEST="/backup"
@@ -27,7 +27,9 @@ source /path/to/lib2.sh
 function func1() {...}
 function func2() {...}
 # ---------- 主逻辑 ----------------
-main() {}
+main(){
+    ....
+}
 
 main "$@"
 ```
@@ -35,8 +37,8 @@ main "$@"
 ### 执行脚本
 
 ```Shell
-bash script.sh a b       # a,b为用户传入的位置参数，供脚本内部调用
-bash -n script.sh        # 检查脚本有没有语法错误，但不实际运行
+bash script.sh a b c     # a,b,c为用户传入的位置参数，供脚本内部调用
+bash -n script.sh        # 检查语法,不实际运行
 bash -x script.sh        # 打印每一行执行的命令及其参数
 source ./script.sh
 ```
@@ -44,7 +46,7 @@ source ./script.sh
 ### 内置语法
 
 ```Shell
-# 输入
+# 接受用户输入
 read [选项] 变量
 read -s               # 静默输入
 read -p "请输入"       # 带提示输入
@@ -57,7 +59,7 @@ echo "..."            # 输出并解析变量
 echo '...'            # 原样输出字符串
 echo "error" >&2      # 报错信息扔掉
 printf "时间:%d\n" 25  # %d->25
-cat << EOF
+cat/命令 << EOF
 ...............
 ...............
 ...............
@@ -106,8 +108,8 @@ echo "位置参数调用：$1 $2 ${10}"
 echo "位置参数总个数：$#"
 echo "所有位置参数：$@"        # 用于遍历
 echo "上一条命令的退出码：$?"   # 0为命令成功
-TEMP_FILE="/xxx.$$.tmp"      # shell进程ID
-kill $!                      # 最后一个后台进程的 PID
+TEMP_FILE="/xxx.$$.tmp"     # shell进程ID
+kill $!                     # 最后一个后台进程的 PID
 ```
 
 ### 条件测试
