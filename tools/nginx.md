@@ -5,10 +5,13 @@
 ### 常用命令
 
 ```Shell
-nginx -c conf/nginx.conf         # 启动配置文件
-nginx -t                         # 检查配置文件语法
-nginx -s quit/reload             # 结束/重载
-nginx -V                         # 查看编译参数和版本
+nginx -t                   # 检查配置文件语法
+nginx -s reload            # 重载
+nginx -s stop/quit         # 停止服务
+nginx -c conf/nginx.conf   # 启动配置文件
+nginx -V                   # 查看编译参数和版本
+nginx -T                   # 测试并打印全部配置
+nginx -s reopen            # 重新打开日志文件
 
 # 启用新站点(创建软连接)
 sudo ln -s /etc/nginx/sites-available/newsite  /etc/nginx/sites-enabled/
@@ -44,7 +47,8 @@ http {
     include /etc/nginx/conf.d;         # 引入其他站点配置文件
     sendfile on;                       # 启用高效文件传输
     keepalive_timeout 65;              # 长连接超时时间
-    access_log/error_log               # HTTP 层面的访问日志和错误日志
+    access_log/error_log;              # HTTP 层面的访问日志和错误日志
+    gzip on;                           # 压缩 
 
     # 日志自定义格式
     log_format main '$remote_addr - $remote_user [$time_local] "$request" '
@@ -70,7 +74,7 @@ http {
 
         # 定义URL路由规则
         location / {
-            try_files $uri $uri/ =404;      # 按顺序尝试文件/目录
+            try_files $uri $uri/ =404;  # 按顺序尝试文件/目录
             # 反向代理，请求发到后端
             proxy_pass http://127.0.0.1:3000;
             proxy_set_header Host $host;
