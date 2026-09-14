@@ -78,7 +78,7 @@ state=present(安装)/absent(卸载)/latest(更新到最新版)
 
 ### playbook.yml(可重复执行)
 
-```Shell
+```shell
 # 执行playbook
 ansible-playbook playbook01.yml [--check(检查语法)] [-v] [--tags 标记]
 
@@ -216,5 +216,49 @@ roles/
     ├── meta/
     │   └── main.yml          # Role的依赖关系
     └── README.md             # 说明文档
+```
+
+### 架构
+
+```Shell
+基础概念
+Ansible 是什么：开源自动化运维工具，用于配置管理、应用部署、任务执行。基于 Python，无 Agent，通过 SSH 通信。
+核心特点：无 Agent、SSH 连接、YAML 编写、幂等性、模块化、简单易学。
+和其他工具区别：比 Puppet、Chef 轻量无 Agent；比 SaltStack 简单；比 Shell 脚本规范、幂等、可复用。
+
+
+核心组件
+Inventory：主机清单，定义被管理主机，可分组，默认 /etc/ansible/hosts。
+Playbook：YAML 剧本，定义任务序列，是核心。
+Module：模块，执行具体操作。
+Task：任务，调用模块的最小单元。
+Role：角色，把任务、变量、文件、模板组织成可复用结构。
+Handler：处理器，被 notify 触发，任务 changed 时执行，常用于重启服务。
+Variable：变量。
+Fact：Ansible 自动收集的被控端信息。
+Template：Jinja2 模板，动态生成配置文件。
+
+
+幂等性
+多次执行同一任务结果一致，不会重复改变状态。靠模块内部判断当前状态，只在需要时改变。好处是安全可重复。
+
+
+Inventory
+INI 或 YAML 格式，中括号定义组，可设主机变量和组变量。
+常用变量：ansible_host、ansible_port、ansible_user、ansible_password、ansible_ssh_private_key_file。
+动态 Inventory：从云平台或 CMDB 动态获取
+
+
+Playbook 结构
+每个 play 含 hosts、become、vars、tasks、handlers、roles。
+hosts 目标主机，become 提权，vars 变量，tasks 任务列表，handlers 处理器，roles 引用角色。
+
+
+错误处理
+ignore_errors 忽略错误，failed_when 自定义失败，changed_when 自定义 changed，block、rescue、always 错误块，retries、until 重试。
+
+
+性能优化
+pipelining 减少 SSH 连接，facts 缓存，strategy free 并行，加大 forks，async 异步，关闭 gather_facts，SSH 长连接 ControlPersist。
 ```
 

@@ -4,7 +4,7 @@
 
 ### git配置和操作
 
-```Shell
+```shell
 # 本地仓库配置
 user.name=ZZZZTI
 user.email=19375928071@163.com
