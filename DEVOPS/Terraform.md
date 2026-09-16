@@ -4,69 +4,42 @@
 
 ### 配置文件
 
-| 文件名         | 核心作用                                   |
-| :------------- | :----------------------------------------- |
-| `main.tf`      | 声明要创建和管理的基础设施资源及其期望状态 |
-| `provider.tf`  | 声明使用的 Provider 名称、版本及认证方式   |
-| `variables.tf` | 声明模块可接收的输入变量，提升复用性       |
-| `outputs.tf`   | 声明模块执行完毕后对外输出的信息           |
+|       文件名        | 内容              |
+| :-----------------: | :---------------- |
+|      `main.tf`      | 核心资源配置      |
+|    `provider.tf`    | Provider 声明     |
+|   `variables.tf`    | 接收的输入变量    |
+|    `outputs.tf`     | 执行后的对外输出  |
+| **`terraform.tf`**  | Terraform自身设置 |
+| `terraform.tfstate` | 状态文件          |
 
-### 核心
-
-```Shell
-Provider  → 跟谁对话（阿里云/AWS/本地文件/K8s）
-Resource  → 要创建/管理什么（ECS、VPC、DNS 记录）
-Data Source → 只读查询已有东西（现有 VPC ID、可用区列表）
-State     → Terraform 记录"我管了哪些资源、它们现在啥样"的账本
-```
-
-### tf文件语法:hcl
+### tf文件语法：HCL（声明式）
 
 ```shell
-# 块（block）：类型 + 标签 + 花括号
-resource "alicloud_instance" "web" {
-  # 参数（argument）：key = value
-  instance_type = "ecs.t5-lc1m1.small"
-  image_id      = "ubuntu_22_04_x64_20G_alibase_20240101.vhd"
+# 一个块的格式
+块类型 "标签1" "标签2" {
+   参数名 = 表达式
+   参数名 = {  # 嵌套
+     ...
+   }
+ }
 
-  # 嵌套块
-  tags = {
-    Name = "web-server"
-    Env  = "dev"
-  }
-}
+# 块类型 "标签1" "标签2"
+resource "资源类型" "本地名称" {}   # 声明要创建和管理的基础设施资源（如虚拟机、网络、数据库）	
+data	   "数据类型" "本地名称" {}   # 读取已有资源的信息，不创建或管理
+variable  "变量名"  {}	           # 声明模块的输入变量，实现参数化	
+output	  "输出名"  {}            # 声明模块或根配置对外输出的值
+provider	"云厂商"  {}            # 配置云厂商的连接和认证（区域、凭证等）
+module	  "子模块"  {}            # 引用可复用的子模块
+terraform	{}                     # 配置 Terraform 自身（版本要求、backend 后端）
+locals    {}                     # 定义模块内部复用的局部值
+lifecycle	{}                     # 嵌套块，控制资源的生命周期行为（如创建前销毁、忽略变更）	
 
-# 变量类型
-variable "count"    { type = number }   # 数字
-variable "enabled"  { type = bool }     # 布尔
-variable "name"     { type = string }   # 字符串
-variable "zones"    { type = list(string) }  # 列表
-variable "tags"     { type = map(string) }   # 映射
-variable "server" {                      # 对象
-  type = object({
-    name = string
-    cpu  = number
-  })
-}
 
-# 字符串插值与 heredoc
-locals {
-  name_prefix = "dev-${var.project}"
-  user_data   = <<-EOT
-    #!/bin/bash
-    echo "Hello ${var.project}" > /tmp/hello.txt
-  EOT
-}
+ # 参数名 = 表达式（字面量，引用变量，函数，运算）
 
-data只读查询
-# 查现有可用区，不创建任何东西
-data "alicloud_zones" "available" {
-  available_resource_creation = "Instance"
-}
+引用变量：resource.类型.名称.属性
 
-output "zone_ids" {
-  value = data.alicloud_zones.available.zones[*].id
-}
 ```
 
 ### 命令
@@ -100,7 +73,7 @@ tfplan                    # 执行之前保存的计划文件
 -refresh-only             # 刷新 state 与真实资源同步
 
 
-# 销毁所有管理的基础设施
+# 销毁所有管理的基础设施（⚠️不然烧钱）
 terraform destroy [选项]
 -auto-approve             # 跳过确认销毁
 -target=aws_instance.web  # 只销毁指定资源
@@ -158,5 +131,10 @@ TF_LOG=DEBUG terraform apply   # 开启调试日志
     │           │           │           │
     ▼           ▼           ▼           ▼
  云 API      云 API      云 API      K8s API
+ 
+Provider  → 跟谁对话（阿里云/AWS/本地文件/K8s）
+Resource  → 要创建/管理什么（ECS、VPC、DNS 记录）
+Data Source → 只读查询已有东西（现有 VPC ID、可用区列表）
+State     → Terraform 记录"我管了哪些资源、它们现在啥样"的账本
 ```
 
