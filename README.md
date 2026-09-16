@@ -6,47 +6,44 @@
 
 ```css
 .
-├── TencentCloud
-│   ├── ACP.md
-│   ├── Terraform.md
-│   └── cloud.md
-├── CICD
-│   ├── GitLab.md
-│   ├── GithubActions.md
-│   └── Jenkins.md
-├── K8S⭐️
-│   ├── CKAD.md
-│   ├── docker.md
-│   └── k8s.md
-├── Linux⭐️
-│   ├── RHCSA.md
-│   ├── SHELL.md
-│   ├── network.md [IP,网卡,网关,路由,端口,连通,DNS,抓包,流量,计网]
-│   ├── 内核.md [物理磁盘,分区,文件系统,LVM,挂载,启动流程]
-│   ├── 安全.md [用户与组,权限,防火墙,SSH加固,强制访问,日志审计]
-│   ├── 文件.md [文件的查找,创删,复制,移动,比较,打包解压,传输]
-│   ├── 文本.md [文本内容的编辑与处理：管道,三剑客,vim]
-│   ├── 目录.md [重要目录和文件]
-│   ├── 管理.md [服务管理,定时任务,运行级别,作业与终端,软件包管理]
-│   └── 资源.md [负载,CPU,内存,磁盘I/O与空间,进程,日志系统与轮替]
-├── Observe
-│   ├── Ansible.md
+├── CLOUD
 │   ├── ELK.md
 │   ├── Grafana.md
-│   └── Prometheus.md
-├── tools
+│   ├── Prometheus.md
+│   └── cloud+ACP.md
+├── DEVOPS
+│   ├── Ansible.md
+│   ├── Jenkins.md
+│   ├── Terraform.md
+│   └── git.md
+├── K8S
+│   ├── CKAD.md
+│   ├── docker.md
+│   ├── helm+istio.md
+│   └── k8s.md
+├── LINUX
+│   ├── RHEL.md
+│   ├── SHELL.md
+│   ├── network.md
+│   ├── 内核.md
+│   ├── 安全.md
+│   ├── 文件.md
+│   ├── 文本.md
+│   ├── 目录.md
+│   ├── 管理.md
+│   └── 资源.md
+├── TOOLS
 │   ├── Mysql
-│   ├── git.md
 │   ├── maven.md
 │   ├── nginx.md
 │   └── redis.md
-├── KnowledgeGit.sh [git script]
-└── README.md [you reading]
+├── KnowledgeGit.sh
+└── README.md
 ```
 
 ### My projects:
 
-一个由阿里云监控的云原生+微服务平台：
+一个由腾讯云监控的云原生+微服务平台：
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
