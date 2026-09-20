@@ -83,10 +83,8 @@
 ```Shell
 操作目的                    RHEL 10 (NetworkManager)            Ubuntu (Netplan)
 ─────────────────────────────────────────────────────────────────────────────────
-查看网络设备                nmcli device status                 ip link show 或
-                                                               netplan get
-查看网络连接                nmcli connection show               netplan get 或
-                                                               ip addr show
+查看网络设备                nmcli device status                 ip link show
+查看网络连接                nmcli connection show               ip addr show
 创建静态IP连接              nmcli con add type ethernet         netplan配置文件:
                            ifname eth0 con-name static-eth0     /etc/netplan/*.yaml
                            ipv4.addresses 192.168.1.100/24      network:

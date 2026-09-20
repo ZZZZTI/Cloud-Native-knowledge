@@ -38,8 +38,196 @@ lifecycle	{}                     # 嵌套块，控制资源的生命周期行为
 
  # 参数名 = 表达式（字面量，引用变量，函数，运算）
 引用变量：resource.类型.名称.属性
-。。。
 ```
+
+### 块的配置示例
+
+```Shell
+# ============================================================
+# 1. terraform 块 —— 配置 Terraform 自身（版本、Provider 来源、backend）
+# ============================================================
+terraform {                                              # 声明 terraform 块，全局唯一
+  required_version = ">= 1.5.0"                          # 要求 Terraform 版本不低于 1.5.0
+
+  required_providers {                                   # 声明本配置依赖的 Provider
+    aws = {                                              # Provider 本地键名为 aws
+      source  = "hashicorp/aws"                          # Provider 来源地址（Registry）
+      version = "~> 5.0"                                 # 版本约束：5.x 最新版
+    }
+  }
+
+  backend "s3" {                                         # 配置远端 state 存储
+    bucket         = "my-terraform-state"                # state 存放的 S3 桶
+    key            = "prod/terraform.tfstate"            # state 文件在桶内的路径
+    region         = "us-west-2"                         # S3 桶所在区域
+    dynamodb_table = "terraform-lock"                    # 用 DynamoDB 表实现状态锁
+    encrypt        = true                                # 启用服务端加密
+  }
+}
+
+# ============================================================
+# 2. provider 块 —— 配置云厂商连接与认证
+# ============================================================
+provider "aws" {                                         # 声明 AWS Provider
+  region  = var.region                                   # 区域由变量传入
+  profile = "default"                                    # 使用本地 AWS CLI 的 default profile
+
+  default_tags {                                         # 为所有资源自动附加默认标签
+    tags = {
+      Environment = var.env                              # 标签：环境
+      ManagedBy   = "terraform"                          # 标签：管理工具
+    }
+  }
+}
+
+provider "aws" {                                         # 第二个同类型 Provider
+  alias  = "east"                                        # 别名 east，用于多区域场景
+  region = "us-east-1"                                   # 该别名指向 us-east-1
+}
+
+# ============================================================
+# 3. variable 块 —— 声明输入变量
+# ============================================================
+variable "region" {                                      # 声明变量 region
+  type        = string                                   # 类型为字符串
+  default     = "us-west-2"                              # 默认值
+  description = "AWS 区域"                               # 变量说明
+}
+
+variable "env" {                                         # 声明变量 env
+  type        = string                                   # 类型为字符串
+  default     = "dev"                                    # 默认值
+  sensitive   = false                                    # 是否在输出中隐藏
+  nullable    = false                                    # 禁止传 null
+
+  validation {                                           # 变量校验块
+    condition     = contains(["dev", "prod"], var.env)   # 校验条件：只能是 dev 或 prod
+    error_message = "env 必须是 dev 或 prod。"           # 校验失败提示
+  }
+}
+
+variable "instance_type" {                               # 声明变量 instance_type
+  type    = string                                       # 类型为字符串
+  default = "t3.micro"                                   # 默认值
+}
+
+# ============================================================
+# 4. locals 块 —— 定义模块内部复用的局部值
+# ============================================================
+locals {                                                 # 声明 locals 块（可多个，会合并）
+  common_tags = {                                        # 定义局部值 common_tags
+    Project     = "myapp"                                # 标签：项目名
+    Environment = var.env                                # 标签：引用变量 env
+    ManagedBy   = "terraform"                            # 标签：管理工具
+  }
+
+  name_prefix = "${var.env}-myapp"                       # 定义局部值 name_prefix，字符串插值
+}
+
+# ============================================================
+# 5. data 块 —— 读取已有资源信息（只读，不创建）
+# ============================================================
+data "aws_ami" "ubuntu" {                                # 声明数据源 aws_ami，本地名 ubuntu
+  most_recent = true                                     # 只取最新的一条结果
+
+  filter {                                               # 过滤条件块
+    name   = "name"                                      # 过滤字段：name
+    values = ["ubuntu/images/hvm-ssd/*"]                 # 匹配的取值列表
+  }
+
+  owners = ["099720109477"]                              # 限制镜像所有者（Canonical）
+}
+
+# ============================================================
+# 6. module 块 —— 引用可复用的子模块
+# ============================================================
+module "vpc" {                                           # 声明模块实例，本地名 vpc
+  source  = "terraform-aws-modules/vpc/aws"              # 模块来源（必须是字面字符串）
+  version = "5.0.0"                                      # 模块版本约束
+
+  name = "${local.name_prefix}-vpc"                      # 传给子模块 variable：name
+  cidr = "10.0.0.0/16"                                   # 传给子模块 variable：cidr
+  azs  = ["us-west-2a", "us-west-2b"]                    # 传给子模块 variable：azs
+
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]       # 传给子模块 variable：私有子网
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]   # 传给子模块 variable：公有子网
+
+  providers = {                                          # 将 Provider 配置传给子模块
+    aws = aws.east                                       # 子模块使用别名为 east 的 Provider
+  }
+
+  depends_on = [aws_iam_role_policy.example]             # 显式声明模块依赖
+}
+
+# ============================================================
+# 7. resource 块 —— 创建和管理基础设施资源
+# ============================================================
+resource "aws_instance" "web" {                          # 声明资源 aws_instance，本地名 web
+  ami           = data.aws_ami.ubuntu.id                 # 参数：引用 data 块的属性
+  instance_type = var.instance_type                      # 参数：引用变量
+  subnet_id     = module.vpc.public_subnets[0]           # 参数：引用模块输出
+  count         = var.env == "prod" ? 3 : 1              # 元参数 count：条件表达式决定数量
+  provider      = aws.east                               # 元参数 provider：指定使用别名 Provider
+
+  tags = merge(local.common_tags, { Name = "web" })      # 参数：调用函数合并局部值
+
+  user_data = <<-EOT                                     # 参数：Heredoc 多行字符串
+    #!/bin/bash
+    echo "Hello, ${var.env}"
+  EOT
+
+  lifecycle {                                            # 嵌套块：控制资源生命周期
+    create_before_destroy = true                         # 先建新再删旧，实现零停机
+    prevent_destroy       = false                        # 是否阻止销毁
+    ignore_changes        = [tags]                       # 忽略 tags 的外部变更
+    replace_triggered_by  = [aws_security_group.web.id]  # 安全组变更时触发替换
+
+    precondition {                                       # 前置条件校验
+      condition     = var.instance_type != ""            # 校验条件
+      error_message = "instance_type 不能为空。"         # 失败提示
+    }
+
+    postcondition {                                      # 后置条件校验
+      condition     = self.public_ip != ""               # 校验资源创建结果
+      error_message = "实例未分配公网 IP。"              # 失败提示
+    }
+  }
+}
+
+resource "aws_security_group" "web" {                    # 声明安全组资源
+  name   = "${local.name_prefix}-sg"                     # 参数：引用局部值
+  vpc_id = module.vpc.vpc_id                             # 参数：引用模块输出
+
+  ingress {                                              # 嵌套块：入站规则
+    from_port   = 80                                     # 起始端口
+    to_port     = 80                                     # 结束端口
+    protocol    = "tcp"                                  # 协议
+    cidr_blocks = ["0.0.0.0/0"]                          # 允许的来源网段
+  }
+
+  egress {                                               # 嵌套块：出站规则
+    from_port   = 0                                      # 起始端口
+    to_port     = 0                                      # 结束端口
+    protocol    = "-1"                                   # -1 表示全部协议
+    cidr_blocks = ["0.0.0.0/0"]                          # 允许的目标网段
+  }
+}
+
+# ============================================================
+# 8. output 块 —— 声明对外输出的值
+# ============================================================
+output "instance_id" {                                   # 声明输出 instance_id
+  value       = aws_instance.web.id                      # 必需：输出值（引用资源属性）
+  description = "EC2 实例 ID"                            # 输出说明
+  sensitive   = false                                    # 是否在 CLI 输出中隐藏
+}
+
+output "vpc_id" {                                        # 声明输出 vpc_id
+  value = module.vpc.vpc_id                              # 引用模块输出
+}
+```
+
+
 
 ### 命令
 
