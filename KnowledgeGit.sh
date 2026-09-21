@@ -4,7 +4,7 @@ git add .
 git commit -m "routinely commit"
 git push
 echo $(date +"%Y-%m-%d %H:%M")
-echo "已经提交Knowledge的变化"
+echo "已提交Knowledge的变化"
 
 
 
