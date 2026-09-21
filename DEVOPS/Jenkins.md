@@ -13,6 +13,87 @@
 | `logs/`      | 日志                      |
 | `config.xml` | 全局配置                  |
 
+### item
+
+```Shell
+# 简单任务
+Freestyle Project（自由风格项目）
+这是最经典、最常用的类型，适合大多数简单到中等复杂度的构建任务。
+特点是通过 Web UI 配置，几乎不用写代码。
+可配置的内容包括：源码管理（Git、SVN 等）、构建触发器（定时、SCM 变更、Webhook 等）、构建步骤（执行 Shell、Windows 批处理、调用 Maven 或 Gradle 等）、构建后操作（归档产物、发邮件、触发下游任务）。
+适用场景是常规编译、打包、部署、定时任务。
+
+# 需要版本化、复杂流程
+Pipeline（流水线）
+用代码（Groovy DSL）定义整个构建流程，是现代 Jenkins 的主流推荐方式。
+分为两种写法。Declarative Pipeline 是结构化语法，用 pipeline { } 包裹，易读易维护，推荐新手使用。Scripted Pipeline 是更灵活的 Groovy 脚本，用 node { } 包裹，适合复杂逻辑。
+特点是流程即代码，可以纳入版本控制，也就是 Jenkinsfile。
+优势是支持阶段（stage）、并行、条件判断、错误处理、共享库。
+适用场景是 CI/CD 全流程、多阶段构建、复杂编排。
+
+# 多分支开发
+Multibranch Pipeline（多分支流水线）
+自动为代码仓库中的每个分支或 PR 创建一条流水线。
+特点是扫描仓库，发现含 Jenkinsfile 的分支就自动建 Job。
+优势是分支增删自动同步，适合 Git Flow 或 PR 流程。
+适用场景是多分支并行开发、Pull Request 构建。
+
+# 整个组织统一管理
+Organization Folder（组织文件夹）
+这是多分支流水线的升级版，扫描整个 GitHub、GitLab 组织或 Bitbucket 团队。
+特点是自动发现组织下所有仓库，为每个仓库再创建多分支流水线。
+适用场景是统一管理一个团队或组织的所有项目。
+
+# 大量 Job 需要分类
+Folder（文件夹）
+它不是构建任务，而是用来组织归类其他 Item 的容器。
+特点是支持嵌套，可以做权限隔离
+适用场景是按团队、项目、环境分组管理大量 Job。
+```
+
+### Configure
+
+```Shell
+General（通用设置）
+这是最基础的配置区域。可以填写项目描述，方便团队协作时了解用途。Discard old builds 用于控制构建历史保留策略，可按天数或数量限制，避免磁盘被占满。This project is parameterized 勾选后可以定义构建参数，支持字符串、布尔值、密码、选项等多种类型，构建时用户可以输入或选择。Throttle builds 设置构建之间的最小间隔和并发数量上限。Disable this project 可以临时停用这个 Job。此外还有并发构建控制、静默期设置、限制运行节点等选项。
+
+
+Source Code Management（源码管理）
+这里配置代码仓库地址，选择 None 表示不使用 SCM。常用的有 Git 和 SVN。以 Git 为例，需要填写仓库 URL、凭据、分支说明符等。如果在 General 中定义了参数，这里也可以引用参数来动态指定仓库路径或分支。
+
+
+Build Triggers（构建触发器）
+定义什么情况下自动开始构建。常见方式包括：外部通过 URL 远程触发、在其他项目构建完成后触发、Build periodically 按 cron 表达式定时触发、Poll SCM 定时轮询代码变更后触发。如果安装了对应插件，还可以使用 GitHub hook 等 Webhook 方式触发。
+
+
+Build Environment（构建环境）
+用于准备构建所需的运行环境。Delete workspace before build starts 可以在构建前清理工作空间。Abort the build if it‘s stuck 设置超时策略，防止卡死的构建一直占用资源。Use secret text(s) or file(s) 用于安全地传入密钥、证书等敏感信息。如果父文件夹配置了 Folder Properties，Freestyle 项目需要在这里启用相应的包装器才能继承那些属性。
+
+
+Build（构建步骤）
+这是核心执行区域。Freestyle 项目可以添加多个构建步骤，如执行 Shell、Windows 批处理、调用 Maven 目标、执行 Gradle 任务等。步骤按顺序串行执行，前一步失败后后续步骤通常不会继续。对于 Pipeline 类型的 Item，这个位置会变成 Pipeline 脚本的定义区域，可以选择内联编写，也可以从 SCM 中读取 Jenkinsfile。
+
+
+Post-build Actions（构建后操作）
+构建结束后触发的操作。常见的包括：归档构建产物（jar、war、报告等）、发送邮件通知、发布测试结果、触发下游 Job、记录构建指纹等。这些操作无论构建成功还是失败都可以配置执行，具体可用选项取决于安装的插件。
+
+
+Pipeline 相关配置
+如果是 Pipeline 类型的 Item，Configure 页面会额外包含 Pipeline 区块。可以选择 Pipeline script 直接粘贴脚本，或者选择 Pipeline script from SCM 从仓库读取 Jenkinsfile。使用 SCM 方式时可以指定 Jenkinsfile 的路径和是否使用轻量级检出。
+
+
+Multibranch Pipeline 特有配置
+Multibranch Pipeline 的 Configure 页面主要围绕分支发现和行为策略展开。Branch Sources 配置仓库地址和凭据，Property strategy 控制参数如何应用到分支——可以选择所有分支使用相同属性，也可以按正则表达式过滤特定分支。参数可以在文件夹层级集中定义，避免每个分支的 Jenkinsfile 都重复配置。
+
+
+Maven Project 特有配置
+Maven Project 类型有专门的 Maven 配置区块。可以指定根 POM 文件的路径（默认 pom.xml）、要执行的 Maven 目标（如 clean install deploy）、使用的 Maven 安装版本、是否启用增量构建、是否自动归档产物等。
+
+
+Matrix Project 特有配置
+Matrix Project（多配置项目）的核心是 Configuration Matrix 区块。可以添加多个轴（Axis），比如操作系统、JDK 版本、目标环境，每个轴定义一组值。Jenkins 会自动为轴的每个组合创建一个独立的构建配置来执行。执行策略中可以设置组合过滤器、是否顺序执行、以及 Touchstone 构建（先用一个配置验证，通过后再跑全部）。
+```
+
 ### jenkins CLI
 
 ```Shell
@@ -132,86 +213,5 @@ ssh jenkins restart-from-stage <Job名称> <构建号> <阶段名>  # 从某个�
 
 # ===== 邮件 =====
 ssh jenkins mail < <邮件内容.txt>                         # 从标准输入读取内容并作为邮件发送
-```
-
-### item
-
-```Shell
-# 简单任务
-Freestyle Project（自由风格项目）
-这是最经典、最常用的类型，适合大多数简单到中等复杂度的构建任务。
-特点是通过 Web UI 配置，几乎不用写代码。
-可配置的内容包括：源码管理（Git、SVN 等）、构建触发器（定时、SCM 变更、Webhook 等）、构建步骤（执行 Shell、Windows 批处理、调用 Maven 或 Gradle 等）、构建后操作（归档产物、发邮件、触发下游任务）。
-适用场景是常规编译、打包、部署、定时任务。
-
-# 需要版本化、复杂流程
-Pipeline（流水线）
-用代码（Groovy DSL）定义整个构建流程，是现代 Jenkins 的主流推荐方式。
-分为两种写法。Declarative Pipeline 是结构化语法，用 pipeline { } 包裹，易读易维护，推荐新手使用。Scripted Pipeline 是更灵活的 Groovy 脚本，用 node { } 包裹，适合复杂逻辑。
-特点是流程即代码，可以纳入版本控制，也就是 Jenkinsfile。
-优势是支持阶段（stage）、并行、条件判断、错误处理、共享库。
-适用场景是 CI/CD 全流程、多阶段构建、复杂编排。
-
-# 多分支开发
-Multibranch Pipeline（多分支流水线）
-自动为代码仓库中的每个分支或 PR 创建一条流水线。
-特点是扫描仓库，发现含 Jenkinsfile 的分支就自动建 Job。
-优势是分支增删自动同步，适合 Git Flow 或 PR 流程。
-适用场景是多分支并行开发、Pull Request 构建。
-
-# 整个组织统一管理
-Organization Folder（组织文件夹）
-这是多分支流水线的升级版，扫描整个 GitHub、GitLab 组织或 Bitbucket 团队。
-特点是自动发现组织下所有仓库，为每个仓库再创建多分支流水线。
-适用场景是统一管理一个团队或组织的所有项目。
-
-# 大量 Job 需要分类
-Folder（文件夹）
-它不是构建任务，而是用来组织归类其他 Item 的容器。
-特点是支持嵌套，可以做权限隔离
-适用场景是按团队、项目、环境分组管理大量 Job。
-```
-
-### Configure
-
-```Shell
-General（通用设置）
-这是最基础的配置区域。可以填写项目描述，方便团队协作时了解用途。Discard old builds 用于控制构建历史保留策略，可按天数或数量限制，避免磁盘被占满。This project is parameterized 勾选后可以定义构建参数，支持字符串、布尔值、密码、选项等多种类型，构建时用户可以输入或选择。Throttle builds 设置构建之间的最小间隔和并发数量上限。Disable this project 可以临时停用这个 Job。此外还有并发构建控制、静默期设置、限制运行节点等选项。
-
-
-Source Code Management（源码管理）
-这里配置代码仓库地址，选择 None 表示不使用 SCM。常用的有 Git 和 SVN。以 Git 为例，需要填写仓库 URL、凭据、分支说明符等。如果在 General 中定义了参数，这里也可以引用参数来动态指定仓库路径或分支。
-
-
-Build Triggers（构建触发器）
-定义什么情况下自动开始构建。常见方式包括：外部通过 URL 远程触发、在其他项目构建完成后触发、Build periodically 按 cron 表达式定时触发、Poll SCM 定时轮询代码变更后触发。如果安装了对应插件，还可以使用 GitHub hook 等 Webhook 方式触发。
-
-
-Build Environment（构建环境）
-用于准备构建所需的运行环境。Delete workspace before build starts 可以在构建前清理工作空间。Abort the build if it‘s stuck 设置超时策略，防止卡死的构建一直占用资源。Use secret text(s) or file(s) 用于安全地传入密钥、证书等敏感信息。如果父文件夹配置了 Folder Properties，Freestyle 项目需要在这里启用相应的包装器才能继承那些属性。
-
-
-Build（构建步骤）
-这是核心执行区域。Freestyle 项目可以添加多个构建步骤，如执行 Shell、Windows 批处理、调用 Maven 目标、执行 Gradle 任务等。步骤按顺序串行执行，前一步失败后后续步骤通常不会继续。对于 Pipeline 类型的 Item，这个位置会变成 Pipeline 脚本的定义区域，可以选择内联编写，也可以从 SCM 中读取 Jenkinsfile。
-
-
-Post-build Actions（构建后操作）
-构建结束后触发的操作。常见的包括：归档构建产物（jar、war、报告等）、发送邮件通知、发布测试结果、触发下游 Job、记录构建指纹等。这些操作无论构建成功还是失败都可以配置执行，具体可用选项取决于安装的插件。
-
-
-Pipeline 相关配置
-如果是 Pipeline 类型的 Item，Configure 页面会额外包含 Pipeline 区块。可以选择 Pipeline script 直接粘贴脚本，或者选择 Pipeline script from SCM 从仓库读取 Jenkinsfile。使用 SCM 方式时可以指定 Jenkinsfile 的路径和是否使用轻量级检出。
-
-
-Multibranch Pipeline 特有配置
-Multibranch Pipeline 的 Configure 页面主要围绕分支发现和行为策略展开。Branch Sources 配置仓库地址和凭据，Property strategy 控制参数如何应用到分支——可以选择所有分支使用相同属性，也可以按正则表达式过滤特定分支。参数可以在文件夹层级集中定义，避免每个分支的 Jenkinsfile 都重复配置。
-
-
-Maven Project 特有配置
-Maven Project 类型有专门的 Maven 配置区块。可以指定根 POM 文件的路径（默认 pom.xml）、要执行的 Maven 目标（如 clean install deploy）、使用的 Maven 安装版本、是否启用增量构建、是否自动归档产物等。
-
-
-Matrix Project 特有配置
-Matrix Project（多配置项目）的核心是 Configuration Matrix 区块。可以添加多个轴（Axis），比如操作系统、JDK 版本、目标环境，每个轴定义一组值。Jenkins 会自动为轴的每个组合创建一个独立的构建配置来执行。执行策略中可以设置组合过滤器、是否顺序执行、以及 Touchstone 构建（先用一个配置验证，通过后再跑全部）。
 ```
 
