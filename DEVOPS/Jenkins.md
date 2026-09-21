@@ -51,6 +51,131 @@ Folder（文件夹）
 适用场景是按团队、项目、环境分组管理大量 Job。
 ```
 
+### Pipeline：groovy语法
+
+```groovy
+pipeline {
+    // 指定流水线运行的代理节点，可以是 any、none 或具体标签
+    agent any
+    // 环境变量，可在所有阶段中使用
+    environment {
+        APP_NAME = 'my-app'
+        BUILD_TOOL = 'maven'
+    }
+    // 构建参数，运行时由用户输入
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: '要构建的分支')
+        choice(name: 'ENV', choices: ['dev', 'test', 'prod'], description: '部署环境')
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: '是否运行测试')
+    }
+    // 流水线触发器，例如定时或轮询
+    triggers {
+        cron('H 2 * * *') // 每天凌晨2点触发
+    }
+    // 全局选项
+    options {
+        timestamps()           // 日志添加时间戳
+        buildDiscarder(logRotator(numToKeepStr: '10')) // 保留最近10次构建
+        timeout(time: 1, unit: 'HOURS') // 超时时间
+        disableConcurrentBuilds() // 禁止并发构建
+    }
+    // 工具自动安装，比如 Maven、JDK
+    tools {
+        maven 'M3'
+        jdk 'JDK11'
+    }
+    stages {
+        // 阶段1：拉取代码
+        stage('Checkout') {
+            steps {
+                script {
+                    echo "正在拉取分支: ${params.BRANCH}"
+                }
+                git branch: "${params.BRANCH}", url: 'https://github.com/example/repo.git'
+            }
+        }
+        // 阶段2：构建
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+            post {
+                success {
+                    echo '构建成功'
+                }
+                failure {
+                    echo '构建失败'
+                }
+            }
+        }
+        // 阶段3：测试（根据参数决定是否运行）
+        stage('Test') {
+            when {
+                expression { params.RUN_TESTS == true }
+            }
+            steps {
+                sh 'mvn test'
+            }
+        }
+        // 阶段4：并行部署到不同环境
+        stage('Deploy') {
+            parallel {
+                stage('Deploy to Dev') {
+                    when {
+                        expression { params.ENV == 'dev' }
+                    }
+                    steps {
+                        echo '部署到开发环境'
+                        sh './deploy.sh dev'
+                    }
+                }
+                stage('Deploy to Test') {
+                    when {
+                        expression { params.ENV == 'test' }
+                    }
+                    steps {
+                        echo '部署到测试环境'
+                        sh './deploy.sh test'
+                    }
+                }
+                stage('Deploy to Prod') {
+                    when {
+                        expression { params.ENV == 'prod' }
+                    }
+                    steps {
+                        // 生产环境需要手动确认
+                        input message: '确认部署到生产环境？', ok: '确认'
+                        echo '部署到生产环境'
+                        sh './deploy.sh prod'
+                    }
+                }
+            }
+        }
+    }
+    // 后置处理，无论成功失败都会执行
+    post {
+        always {
+            echo '流水线执行完毕'
+            junit 'target/surefire-reports/*.xml' // 收集测试报告
+            archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
+        }
+        success {
+            echo '流水线成功完成'
+            // 可发送通知，如邮件、Slack等
+        }
+        failure {
+            echo '流水线失败'
+        }
+        unstable {
+            echo '流水线不稳定'
+        }
+        cleanup {
+            echo '工作空间已清理'
+        }
+    }
+}
+```
+
 ### Configure
 
 ```Shell
