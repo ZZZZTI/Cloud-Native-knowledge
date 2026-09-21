@@ -4,6 +4,8 @@
 >
 > I'm still learning......
 
+### 知识结构
+
 ```css
 .
 ├── CLOUD
@@ -40,6 +42,23 @@
 ├── KnowledgeGit.sh
 └── README.md
 ```
+
+### 技术栈架构
+
+| 组件                  | Mac（运维控制端） | 云服务器（生产服务端） |
+| :-------------------- | :---------------- | :--------------------- |
+| SSH 客户端            | ✅                 |                        |
+| kubectl / helm        | ✅                 |                        |
+| Terraform / Ansible   | ✅                 |                        |
+| 云 CLI                | ✅                 |                        |
+| Nginx / 业务应用      |                   | ✅（docker）            |
+| MySQL / Redis（生产） |                   | ✅（docker）            |
+| Docker Engine         |                   | ✅                      |
+| K8s 节点组件          |                   | ✅                      |
+| jenkins               |                   | ✅（docker）            |
+| Prometheus / Grafana  |                   | ✅（docker）            |
+| 一次性迁移/压测工具   | ✅（docker）       |                        |
+| 跳板机 / VPN 服务端   |                   | ✅                      |
 
 ### My projects:
 
