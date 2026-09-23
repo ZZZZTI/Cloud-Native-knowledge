@@ -51,7 +51,7 @@ CMD ["python", "app.py"]              # 容器启动时运行
 
 ### Docker Compose
 
-```Shell
+```yaml
 docker-compose up -d [--build] # 启动所有服务[代码修改后]
 docker-compose start           # 启动已停止的服务
 docker-compose exec web sh     # 进入某个服务的容器
