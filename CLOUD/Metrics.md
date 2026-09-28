@@ -7,25 +7,50 @@
 ### prometheus.yml
 
 ```yaml
+# 全局配置，作用于所有 job，可被单个 job 覆盖
 global:
-  scrape_interval: 15s
+  scrape_interval: 15s       # 默认抓取间隔
+  scrape_timeout: 10s        # 抓取超时时间（应小于 scrape_interval）
+  evaluation_interval: 15s   # 告警规则和记录的评估间隔
+  external_labels:           # 外部标签，附加到所有时间序列和告警上（常用于联邦/远程写入场景）
+    cluster: my-cluster
+    replica: A
 
-alerting:          # 告警
-  alertmanagers:
-    - static_configs:
-        - targets: ['localhost:9093']
-
-rule_files:        # 告警规则文件
+# 告警规则文件列表
+rule_files:
   - /etc/prometheus/rules/*.yml
 
-scrape_configs:     # 抓取配置
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
+# Alertmanager 配置
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "alertmanager:9093"   # Alertmanager 地址
+      # 也可用服务发现动态获取
+      # - dns_sd_configs:
+      #     - names: ['alertmanager']
 
-  - job_name: 'node-exporter'
+# 抓取配置，可配置多个 job
+scrape_configs:
+  # 示例 1：抓取 Prometheus 自身指标
+  - job_name: "prometheus"
+    metrics_path: /metrics          # 默认就是 /metrics，可省略
+    scheme: http                    # http 或 https
     static_configs:
-      - targets: ['localhost:9100']
+      - targets: ["localhost:9090"] # Prometheus 自身地址
+        labels:
+          env: "prod"
+          app: "prometheus"
+
+  # 示例 2：抓取 node_exporter（主机监控）
+  - job_name: "node"
+    static_configs:
+      - targets:
+          - "node-exporter-1:9100"
+          - "node-exporter-2:9100"
+        labels:
+          env: "prod"
+          role: "server"
 ```
 
 ### 指标数据
@@ -147,6 +172,31 @@ sort_desc(node_load1)
 rate(node_network_receive_bytes_total{device="eth0"}[5m])
 # 容器cpu使用率
 sum(rate(container_cpu_usage_seconds_total{name!=""}[5m])) by (name)
+```
+
+### Alertmanager.yml
+
+```yaml
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.163.com:465'
+  smtp_from: '19375928071@163.com'
+  smtp_auth_username: '19375928071@163.com'
+  smtp_auth_password: 'SHcGJG6r82mrJgUx'
+  smtp_require_tls: false
+
+route:
+  receiver: 'email'
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 30s
+  repeat_interval: 1h
+
+receivers:
+  - name: 'email'
+    email_configs:
+      - to: '19375928071@163.com'
+        send_resolved: true
 ```
 
 ### 架构

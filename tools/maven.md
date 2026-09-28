@@ -82,3 +82,77 @@ mvn dependency:tree
 mvn dependency:analyze
 ```
 
+### XML
+
+```xml
+<!-- ---------- 1. 基本结构 ---------- -->
+<?xml version="1.0" encoding="UTF-8"?>   <!-- 声明，必须在第一行 -->
+<root>                                    <!-- 根元素，有且仅有一个 -->
+  <child>内容</child>
+</root>
+
+<!-- ---------- 2. 标签语法 ---------- -->
+<name>Alice</name>          <!-- 双标签，必须闭合 -->
+<img src="a.png" />         <!-- 空元素，自闭合 -->
+<person>                    <!-- 可嵌套，不能交叉 -->
+  <name>Zhang San</name>
+</person>
+<!-- 大小写敏感：<Name> 和 <name> 不同 -->
+
+<!-- ---------- 3. 属性 ---------- -->
+<book id="1" category="tech">XML 入门</book>
+<!-- 值必须加引号；元数据用属性，内容用子元素 -->
+
+<!-- ---------- 4. 注释 ---------- -->
+<!-- 这是注释，不能嵌套，不能出现在标签内 -->
+
+<!-- ---------- 5. 转义与 CDATA ---------- -->
+<!-- < -> &lt;   > -> &gt;   & -> &amp;   " -> &quot;   ' -> &apos; -->
+<expr>3 &lt; 5 &amp;&amp; 2 &gt; 1</expr>
+<script><![CDATA[ if (a < b && c > d) {} ]]></script>  <!-- 原样输出 -->
+
+<!-- ---------- 6. 命名空间 ---------- -->
+<root xmlns:h="http://www.w3.org/TR/html4/">
+  <h:table>HTML 表格</h:table>
+</root>
+<!-- 解决标签重名；默认命名空间：xmlns="url" -->
+
+<!-- ---------- 7. 文档约束 ---------- -->
+<!-- DTD : 定义元素/属性/顺序，<!DOCTYPE note SYSTEM "note.dtd">
+     XSD : 更强大的 Schema 校验（推荐） -->
+
+<!-- ---------- 8. 解析方式 ---------- -->
+<!-- DOM  : 整树加载，可随机访问，适合小文件
+     SAX  : 事件驱动，逐行读，省内存，适合大文件
+     StAX : 流式拉取（Java）
+     XPath: 路径查询，如 //book[@category='tech']/title
+     XSLT : XML 转 HTML/文本 -->
+
+<!-- ---------- 9. 应用场景 ---------- -->
+<!-- 配置：Maven pom.xml、Android 布局、Spring
+     数据：SOAP、RSS、SVG、Office(docx/xlsx = zip+xml)
+     文档：XHTML、DocBook -->
+
+<!-- ---------- 10. XML vs JSON vs YAML ---------- -->
+<!-- 可读性 : XML 冗长   | JSON 简洁   | YAML 最好
+     注释   : 支持       | 不支持       | 支持
+     属性   : 有         | 无           | 无
+     命名空间: 有        | 无           | 无
+     类型   : 全字符串   | 有类型       | 有类型
+     校验   : DTD/XSD    | JSON Schema  | Schema
+     场景   : 企业/文档  | 数据交换     | 配置 -->
+
+<!-- ---------- 11. 语法规则 ---------- -->
+<!-- ✓ 唯一根元素、标签闭合、大小写敏感、属性加引号、正确嵌套
+     ✗ 多根元素、交叉嵌套、属性重复、标签名以数字开头 -->
+
+<!-- ---------- 12. 最佳实践 ---------- -->
+<!-- 1. 优先 XSD 校验
+     2. 元数据用属性，内容用子元素
+     3. 大文件用 SAX/StAX 流式解析
+     4. 命名空间避免冲突
+     5. 特殊字符转义或用 CDATA
+     6. 非必要优先选 JSON/YAML
+     7. 用 xmllint 校验格式 -->
+```
+
