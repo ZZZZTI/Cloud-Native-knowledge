@@ -4,71 +4,13 @@
 
 ------
 
-### docker-compose.yml
-
-```yaml
-services:
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    restart: unless-stopped
-    network_mode: host
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus/rules:/etc/prometheus/rules
-      - prometheus-data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-
-  node-exporter:
-    image: quay.io/prometheus/node-exporter:latest
-    container_name: node-exporter
-    restart: unless-stopped
-    network_mode: host
-    pid: host
-    volumes:
-      - /:/host:ro,rslave
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-    command:
-      - '--path.rootfs=/host'
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-
-  alertmanager:
-    image: prom/alertmanager:latest
-    container_name: alertmanager
-    restart: unless-stopped
-    network_mode: host
-    volumes:
-      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-
-  grafana:
-    image: grafana/grafana-enterprise:latest
-    container_name: grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana-storage:/var/lib/grafana
-
-volumes:
-  prometheus-data:
-  grafana-storage:
-    external: true
-```
-
 ### prometheus.yml
 
 ```yaml
 global:
   scrape_interval: 15s
 
-alerting:          # 告警规则文件
+alerting:          # 告警
   alertmanagers:
     - static_configs:
         - targets: ['localhost:9093']
@@ -194,6 +136,17 @@ timestamp(node_load1)
 hour() / day_of_week() / month()
 sort(node_load1)                           # 排序
 sort_desc(node_load1)
+
+# cpu使用率
+100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by (instance) * 100)
+# 内存使用率
+100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+# 磁盘使用率
+100 * (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})
+# 网络接收速率
+rate(node_network_receive_bytes_total{device="eth0"}[5m])
+# 容器cpu使用率
+sum(rate(container_cpu_usage_seconds_total{name!=""}[5m])) by (name)
 ```
 
 ### 架构
