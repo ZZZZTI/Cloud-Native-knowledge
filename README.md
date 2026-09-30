@@ -1,4 +1,4 @@
-# Welcome to ZZZZTI's CloudNative knowledge repository!
+# Welcome to ZTI's CloudNative knowledge repository
 
 > [!IMPORTANT]
 >
@@ -48,16 +48,16 @@
 ### Technical stack architecture
 
 ```Shell
-
+......
 ```
 
 ### My projects:
 
-基于 IaC 与 GitOps 的多环境交付流水线建设：
+基于 IaC 与 GitOps 的多环境交付流水线建设（自动化、工具链整合）：
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
-核心链路 SLO 保障与全链路可观测性治理：
+核心链路 SLO 保障与全链路可观测性治理（稳定性、监控、应急响应）：
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
