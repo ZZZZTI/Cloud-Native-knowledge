@@ -1,6 +1,8 @@
->  指标数据（Metrics）：随时间聚合的数值，如 QPS、延迟、错误率、CPU 使用率。适合告警和趋势分析，细节有限
+>  Prometheus采集指标数据（Metrics）：随时间聚合的数值，如延迟、错误率、CPU 使用率，适合告警和趋势分析
 >
->  工具：Prometheus-> Grafana面板 -> Alertmanager告警/webhook中间件告警
+>  可视化： Grafana面板 
+>
+>  告警：Alertmanager/webhook中间件
 
 ------
 

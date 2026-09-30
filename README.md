@@ -62,7 +62,7 @@
 
 ### My projects:
 
-一个由腾讯云监控的云原生+微服务平台：
+一个完整的云原生平台，涵盖基础设施即代码、CI/CD 自动化、可观测性与混沌工程：
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
