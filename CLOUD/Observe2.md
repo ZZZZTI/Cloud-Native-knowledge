@@ -113,6 +113,7 @@ storage:
 
 ```Shell
 # OTel Collector配置（接收数据 → 处理数据 → 导出到后端）
+vim collector-config.yaml
 receivers:   # 数据从哪里来
   otlp:
     protocols:
@@ -238,5 +239,12 @@ Span	          调用链中的一个操作单元，记录操作名、耗时、�
 Trace ID	      全局唯一标识，贯穿整个调用链，用于串联所有 Span
 Parent Span ID	标识当前 Span 的调用者，用于重建调用树结构
 OTLP	          OpenTelemetry Protocol，Tempo 的原生接收协议
+
+
+# 关联与统一
+Exemplars：Metrics关联Trace
+TraceID注入日志：Logs关联Traces
+统一标签体系：Service、Env、Version、Region
+OpenTelemetry统一采集
 ```
 
