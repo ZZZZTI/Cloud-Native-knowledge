@@ -1,10 +1,10 @@
-> homebrew等于MACos上的apt包管理器
+> homebrew 相当于 MACos 上的 apt 包管理器
 
 ------
 
 ### 常用命令
 
-```Shell
+```shell
 # ========== 基础操作 ==========
 brew install <包名>           # 安装一个软件包
 brew uninstall <包名>         # 卸载一个软件包
