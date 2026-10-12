@@ -178,7 +178,8 @@ kubectl explain deploy.spec.strategy --recursive
 kubectl get pod -n kube-system -o yaml | head -40
 kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'
 kubectl get pods -A --sort-by=.metadata.creationTimestamp
-kubectl get pods -A -o custom-columns='NS:.metadata.namespace,NAME:.metadata.name,NODE:.spec.nodeName'
+kubectl get pods -A 
+-o custom-columns='NS:.metadata.namespace,NAME:.metadata.name,NODE:.spec.nodeName'
 
 # 4) 观察"期望状态"如何被实现
 kubectl run demo --image=nginx:1.27
