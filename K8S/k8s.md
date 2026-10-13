@@ -407,7 +407,14 @@ spec:
       stabilizationWindowSeconds: 300  # 缩容冷却时间，避免抖动
 ```
 
+### 探针
 
+```Shell
+探针	           作用	                  失败后果	                                 典型用途
+startupProbe	   判断容器是否启动完成	    超过阈值后重启容器	         慢启动应用，避免被 liveness 误杀
+livenessProbe	   判断容器是否还活着	     连续失败达到 failureThreshold 后重启容器	   进程假死、死锁
+readinessProbe	 判断容器是否准备好接流量	 从 Service EndpointSlice 摘除，不重启	依赖未就绪、临时不可用
+```
 
 
 
