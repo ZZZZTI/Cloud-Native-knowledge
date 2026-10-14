@@ -184,7 +184,7 @@ global:
   smtp_smarthost: 'smtp.163.com:465'
   smtp_from: '19375928071@163.com'
   smtp_auth_username: '19375928071@163.com'
-  smtp_auth_password: 'SHcGJG6r82mrJgUx'
+  smtp_auth_password: 'xxxxxxxxxxxxxx'
   smtp_require_tls: false
 
 route:
