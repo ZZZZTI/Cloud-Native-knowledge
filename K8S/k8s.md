@@ -50,6 +50,7 @@ kubectl edit deploy/<name> -n <ns>       # 在线编辑
 kubectl patch deploy/<name> -n <ns> --type='json' -p='[{"op":"replace","path":"/spec/replicas","value":3}]'
 kubectl label pod <pod> -n <ns> env=prod
 kubectl annotate pod <pod> -n <ns> owner=team-a
+kubectl create configmap app-config --from-literal=APP_ENV=prod  # 命令创建cm
 
 # ========== 扩缩容与滚动更新 ==========
 kubectl scale deploy/<name> -n <ns> --replicas=3
@@ -136,12 +137,14 @@ spec:
   selector:                # 标签选择器，必须匹配 template.metadata.labels
     matchLabels:
       app: web
-  strategy:                # 更新策略
+  # 更新策略
+  strategy:                
     type: RollingUpdate    # 滚动更新（默认），另一个是 Recreate（先全部删再建）
     rollingUpdate:
       maxSurge: 1          # 更新时最多超出期望副本数的 Pod 数量（可以是数字或百分比）
       maxUnavailable: 0    # 更新时最多不可用的 Pod 数量（0 表示保证服务不中断）
-  template:                # Pod 模板
+  # Pod 模板
+  template:                
     metadata:
       labels:
         app: web           # 必须与 selector.matchLabels 匹配
@@ -189,6 +192,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+                  optional: true    # 缺失时不报错，注入空值
           
           # 资源配额
           resources:
@@ -405,7 +409,7 @@ spec:
     scaleDown:
       stabilizationWindowSeconds: 300  # 缩容冷却时间，避免抖动
 # ============================================================
-# 控制器的资源类型：StatefulSet，DaemonSet，Job，CronJob，PodDisruptionBudget（PHB）
+# 控制器的资源类型：StatefulSet，DaemonSet，Job，CronJob，PodDisruptionBudget（PHB），NetworkPolicy
 # ============================================================
 ```
 
@@ -448,6 +452,15 @@ HPA / PDB	  副本弹性 / 可用性保护	        自动扩缩、节点维护
 ClusterIP	仅集群内	          clusterIP 自动分配	 东西向服务调用
 NodePort	集群外，通过         NodeIP:nodePort	  nodePort 30000–32767	开发测试、临时暴露
 Headless	集群内，不做负载均衡	clusterIP: None	   StatefulSet 稳定 DNS
+
+# 网络通信
+特性	   Service	        Ingress	                NetworkPolicy
+工作层级	四层（TCP/UDP）	  七层（HTTP/HTTPS） 	     三层/四层（IP/端口）
+核心作用	服务发现、负载均衡	 外部 HTTP 路由、TLS	     网络隔离、访问控制
+依赖组件	kube-proxy	     Ingress Controller	    CNI 插件（如 Calico）
+典型场景	微服务互调	       生产环境对外暴露 Web 服务	多租户隔离、安全加固
+
+Ingress（外部流量入口）->Service（四层负载均衡）-> CoreDNS，Endpoints ->NetworkPolicy（防火墙）->Pod
 ```
 
 
