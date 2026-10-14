@@ -136,7 +136,22 @@ docker tag  dockerproxy.net/library/nginx:1.27 nginx:1.27
 | 11   | 进阶与生产化                     | 持续      | CRD/Operator/集群运维               |
 | 🏁    | 三个里程碑项目                   | 各 1-2 天 | 作品集                              |
 
----
+| 阶段   | 主题                      | 用到的文件                                                   |
+| :----- | :------------------------ | :----------------------------------------------------------- |
+| **1**  | 心智模型 + kubectl 基本功 | **无文件**，全程用 `kubectl run` 临时对象                    |
+| **2**  | Pod 深入（探针/多容器）   | `01-pod-basic.yaml`、`02-pod-probe.yaml`                     |
+| **3**  | 工作负载控制器            | `03-deployment-rollout.yaml`、`07-statefulset-headless.yaml`、`08-daemonset-job.yaml` |
+| **4**  | 服务发现与网络            | `04-service.yaml`、`12-networkpolicy.yaml`、`14-helm-notes.md`（装 ingress-nginx） |
+| **5**  | 配置与密钥                | `05-configmap-secret.yaml`                                   |
+| **6**  | 存储                      | `06-persistentvolume.yaml`、`07-statefulset-headless.yaml`（复用） |
+| **7**  | 调度与资源管理            | `09-scheduling.yaml`、`10-resources-qos.yaml`、`13-quota-limitrange.yaml` |
+| **8**  | 可观测性与排障            | `15-troubleshooting.md`、`14-helm-notes.md`（装 metrics-server） |
+| **9**  | 安全与多租户              | `11-rbac.yaml`                                               |
+| **10** | 包管理与交付              | `14-helm-notes.md`（Helm 手册）                              |
+| **11** | 进阶与生产化              | 无专门文件（自己装 cert-manager 等）                         |
+| 🏁      | 里程碑项目                | 综合复用以上所有                                             |
+
+------
 
 ## 阶段 1：心智模型与 kubectl 基本功（2-3 天）
 
@@ -220,11 +235,11 @@ kubectl delete pod demo
 
 5. **三种探针**（最重要的考点）
 
-   | 探针             | 失败后果                                         | 用途               |
-   | ---------------- | ------------------------------------------------ | ------------------ |
-   | `startupProbe`   | 一直重试，通过前不执行另两个探针，超时后重启容器 | 慢启动应用（Java） |
-   | `livenessProbe`  | **重启容器**                                     | 死锁/假死检测      |
-   | `readinessProbe` | **不重启**，只是从 Service Endpoints 摘掉        | 流量就绪判断       |
+   | 探针             | 失败后果                                            | 用途               |
+   | ---------------- | --------------------------------------------------- | ------------------ |
+   | `startupProbe`   | 一直重试，通过前不执行另两个探针，超时后重启容器    | 慢启动应用（Java） |
+   | `livenessProbe`  | **重启容器**                                        | 死锁/假死检测      |
+   | `readinessProbe` | **不重启**，只是从 Service Endpoints 摘掉，不发流量 | 流量就绪判断       |
 
    - 探针方式：`httpGet` / `tcpSocket` / `exec` / `grpc`；参数 `initialDelaySeconds`/`periodSeconds`/`timeoutSeconds`/`failureThreshold`/`successThreshold`。
 

@@ -84,7 +84,7 @@ kubectl proxy                            # 本地代理 API Server
 -o wide|yaml|json    # 输出格式
 -o jsonpath=...      # 提取字段
 -l app=nginx         # 标签选择器
---watch / -w         # 监听变化
+--watch / -w         # 监听实时变化
 --help               # 查看帮助
 ```
 
@@ -218,9 +218,10 @@ spec:
             httpGet:
               path: /healthz
               port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            failureThreshold: 3
+            initialDelaySeconds: 5  # 容器启动后等多久才开始探测
+            periodSeconds: 10       # 每隔多久探一次
+            failureThreshold: 3     # 连续失败几次算失败   
+            # failureThreshold × periodSeconds ≥ 应用最坏启动时间
           readinessProbe:     # 就绪探针：判断应用是否准备好接收流量
             httpGet:
               path: /
@@ -318,8 +319,6 @@ spec:
 
 ---
 
-
-
 # ============================================================
 # Service 服务
 # 作用：为一组 Pod 提供稳定的访问入口和负载均衡
@@ -405,16 +404,55 @@ spec:
   behavior:                # 扩缩容行为控制（可选）
     scaleDown:
       stabilizationWindowSeconds: 300  # 缩容冷却时间，避免抖动
+# ============================================================
+# 控制器的资源类型：StatefulSet，DaemonSet，Job，CronJob，PodDisruptionBudget（PHB）
+# ============================================================
 ```
 
-### 探针
+### 概念
 
 ```Shell
-探针	           作用	                  失败后果	                                 典型用途
-startupProbe	   判断容器是否启动完成	    超过阈值后重启容器	         慢启动应用，避免被 liveness 误杀
-livenessProbe	   判断容器是否还活着	     连续失败达到 failureThreshold 后重启容器	   进程假死、死锁
-readinessProbe	 判断容器是否准备好接流量	 从 Service EndpointSlice 摘除，不重启	依赖未就绪、临时不可用
+# 探针
+探针	           作用	                  失败后果	                            典型用途
+startupProbe	   判断容器是否启动完成	    超过阈值后重启容器	                     慢启动应用
+livenessProbe	   判断容器是否还活着	     连续失败达到failureThreshold后重启容器  进程假死、死锁
+readinessProbe	 判断容器是否准备好接流量	 从ServiceEndpointSlice摘除，不重启	   依赖未就绪、临时不可用
+
+# Qos class（服务质量）：是 K8s 用来决定 Pod 在节点资源紧张时优先级的一种机制。
+1.Guaranteed（保证型）：资源分配最稳定，最不容易被驱逐。
+条件：Pod 中每一个容器的 requests 必须严格等于 limits
+2.Burstable（突发型）：允许容器在空闲时突发使用超出 requests 的资源，但不能超过 limits
+条件：Pod 中至少有一个容器设置了 requests 或 limits。
+3.BestEffort（尽力而为型）：一旦节点资源紧张，这类 Pod 会被最先杀掉。
+条件：Pod 中所有容器都没有设置任何 requests 和 limits。
+
+# 多容器模式
+模式	           说明	                典型用途
+Init Container	主容器启动前执行完退出 	等待依赖、初始化数据，拉配置
+Sidecar	        辅助主容器	            日志、监控、代理
+Ambassador	    代理外部连接	         数据库代理、服务发现
+Adapter	        转换输出格式	         日志标准化、指标暴露，转成 Prometheus 格式
+
+# 控制器
+对象	       职责	                       典型场景
+Deployment	管无状态应用，更新和回滚（无序） Web 服务、API
+ReplicaSet  保证副本数（几乎不直接用）
+StatefulSet	管有状态应用的标识与存储（有序） 数据库、消息队列
+DaemonSet  	每个节点跑一份	               日志/监控采集器、CNI
+Job	        跑一次就结束	                数据迁移、批处理
+CronJob	    按 cron 周期创建 Job	         定时巡检、报表
+HPA / PDB	  副本弹性 / 可用性保护	        自动扩缩、节点维护
+
+# service类型
+类型     	 访问范围	           关键字段	            典型用途
+ClusterIP	仅集群内	          clusterIP 自动分配	 东西向服务调用
+NodePort	集群外，通过         NodeIP:nodePort	  nodePort 30000–32767	开发测试、临时暴露
+Headless	集群内，不做负载均衡	clusterIP: None	   StatefulSet 稳定 DNS
 ```
+
+
+
+
 
 
 

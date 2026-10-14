@@ -31,7 +31,7 @@ timedatectl set-timezone Asia/Shanghai
 systemctl enable --now chronyd
 ```
 
-### 安装容器运行时（containerd）
+### 安装 容器运行时（containerd）
 
 ```bash
 # containerd 必须使用 systemd cgroup 驱动，否则与 kubelet 冲突
