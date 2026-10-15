@@ -305,7 +305,7 @@ stringData:
 ---
 
 # ============================================================
-# PersistentVolumeClaim (PVC) 持久化存储声明
+# PersistentVolumeClaim (PVC) 持久化存储声明 （管理员可以申请PV，StorageClass资源）
 # 作用：为 Pod 申请持久化存储，与底层 PV 绑定
 # ============================================================
 apiVersion: v1
@@ -461,6 +461,17 @@ Headless	集群内，不做负载均衡	clusterIP: None	   StatefulSet 稳定 DN
 典型场景	微服务互调	       生产环境对外暴露 Web 服务	多租户隔离、安全加固
 
 Ingress（外部流量入口）->Service（四层负载均衡）-> CoreDNS，Endpoints ->NetworkPolicy（防火墙）->Pod
+
+# 存储
+volume类型	       特点	                                   适用场景
+emptyDir	        Pod内容器共享的临时目录 Pod删除后数据丢失 	  容器间共享临时文件、缓存
+hostPath	        挂载宿主机目录 Pod删除后数据保留 	          单节点测试、访问宿主机文件
+configMap/secret	把配置/密钥挂载为文件	                     配置注入
+PVC	              挂载 PVC，获得持久化存储	                 生产环境持久化数据
+nfs	              挂载 NFS 共享	                           多节点共享读写
+CSI	              通过 CSI 驱动挂载任意存储	                 云盘、Ceph、SAN 等
+
+用户创建 PVC（指定 storageClassName） ──► StorageClass ──► 自动创建 PV ──► 自动绑定
 ```
 
 
