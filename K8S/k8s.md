@@ -91,7 +91,7 @@ kubectl proxy                            # 本地代理 API Server
 
 ### 声明资源的 yaml 配置
 
-```Shell
+```yaml
 # ============================================================
 # 单个pod （测试）
 # ============================================================
@@ -409,7 +409,7 @@ spec:
     scaleDown:
       stabilizationWindowSeconds: 300  # 缩容冷却时间，避免抖动
 # ============================================================
-# 控制器的资源类型：StatefulSet，DaemonSet，Job，CronJob，PodDisruptionBudget（PHB），NetworkPolicy
+# StatefulSet，DaemonSet，Job，CronJob，PodDisruptionBudget（PHB），NetworkPolicy，PriorityClass，ResourceQuota，LimitRange
 # ============================================================
 ```
 
@@ -472,6 +472,18 @@ nfs	              挂载 NFS 共享	                           多节点共享�
 CSI	              通过 CSI 驱动挂载任意存储	                 云盘、Ceph、SAN 等
 
 用户创建 PVC（指定 storageClassName） ──► StorageClass ──► 自动创建 PV ──► 自动绑定
+
+# 调度
+调度流程：过滤（Filter）：排除不满足条件的节点→ 打分（Score）：选最高分→ 绑定（Bind），失败则Pod停在Pending
+影响调度的因素：
+resources.requests（节点剩余可分配资源）
+nodeSelector（标签匹配）
+nodeAffinity：硬约束（过滤阶段）/软约束（打分阶段）
+podAffinity/podAntiAffinity：让新 Pod 倾向/避免与某些现有 Pod 运行在同一个拓扑域
+topologySpreadConstraints：精确控制每个拓扑域的数量差异
+
+污点（Taint）：打在节点上的“标签”，表明该节点具有某种特殊属性（如专用 GPU、故障状态），默认排斥所有 Pod。
+容忍（Toleration）：Pod 的“通行证”，允许其被调度到带有对应污点的节点上。
 ```
 
 
@@ -512,62 +524,11 @@ CSI	              通过 CSI 驱动挂载任意存储	                 云盘、
 │  │           共享 Volume            │   │           共享 Volume            │  │
 │  └─────────────────────────────────┘   └─────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
+
+声明式 API：用户提交「期望状态」（YAML），而不是「执行步骤」。
+控制器循环（Reconcile Loop）：观察实际状态 → 与期望状态比较 → 采取动作缩小差异，永不停止。
+一切皆对象：所有资源都通过 apiserver 读写 etcd，没有带外状态。
+松耦合：组件之间只通过 apiserver 通信，不直接互相调用。
 ```
 
-### 控制平面组件
-
-| 组件                       | 职责                                                       | 关键点                                                       |
-| :------------------------- | :--------------------------------------------------------- | :----------------------------------------------------------- |
-| `kube-apiserver`           | 集群唯一入口，所有操作的 REST 网关，负责认证/授权/准入控制 | 无状态，可多实例；静态 Pod 运行在 `/etc/kubernetes/manifests/` |
-| `etcd`                     | 保存集群全部状态（唯一持久化数据源）                       | 必须定期备份；奇数节点（3/5）；2379 客户端端口、2380 对等端口 |
-| `kube-scheduler`           | 为新 Pod 选择节点                                          | 两阶段：Filter（过滤）→ Score（打分）                        |
-| `kube-controller-manager`  | 运行各类控制器，持续把「期望状态」调和成「实际状态」       | 包含 Deployment/ReplicaSet/Node/Job/Endpoint 等几十个控制器  |
-| `cloud-controller-manager` | 对接云厂商 API（LB、节点、路由）                           | 自建集群可不用                                               |
-
-### 节点组件
-
-| 组件              | 职责                                            | 关键点                                          |
-| :---------------- | :---------------------------------------------- | :---------------------------------------------- |
-| `kubelet`         | 节点代理，管理 Pod 生命周期、上报状态、执行探针 | 监听 10250；日志 `journalctl -u kubelet`        |
-| `kube-proxy`      | 实现 Service 的负载均衡与转发规则               | iptables / ipvs / nftables 模式                 |
-| `pod`             | 最小的调度单元，包含一个或多个容器              | 隐藏的pause容器：共享 Network Namespace，Volume |
-| Container Runtime | 真正创建和运行容器                              | 通过 CRI 接口被 kubelet 调用；常用 containerd   |
-
-### 集群插件（Addons）
-
-| 插件                                          | 作用                                                         |
-| :-------------------------------------------- | :----------------------------------------------------------- |
-| CoreDNS                                       | 集群内 DNS 服务发现                                          |
-| CNI（Calico / Cilium / Flannel）              | Pod 网络；**只有 Calico/Cilium/Antrea 等支持 NetworkPolicy，Flannel 不支持** |
-| Ingress Controller（ingress-nginx / Traefik） | 七层入口                                                     |
-| metrics-server                                | 提供 `kubectl top` 与 HPA 的资源指标                         |
-| Dashboard                                     | Web UI（生产慎用）                                           |
-
-### 设计哲学
-
-- **声明式 API**：用户提交「期望状态」（YAML），而不是「执行步骤」。
-- **控制器循环（Reconcile Loop）**：`观察实际状态 → 与期望状态比较 → 采取动作缩小差异`，永不停止。
-- **一切皆对象**：所有资源都通过 apiserver 读写 etcd，没有带外状态。
-- **松耦合**：组件之间只通过 apiserver 通信，不直接互相调用。
-
-------
-
-## 核心概念
-
-| 概念               | 说明                                                         |
-| :----------------- | :----------------------------------------------------------- |
-| Pod                | 最小调度单元，用完即弃                                       |
-| ReplicaSet         | 保证指定数量的 Pod 副本（一般由 Deployment 托管，不直接用）  |
-| Deployment         | **基于声明式定义副本数，实现 Pod 的自动维持与故障自愈**      |
-| StatefulSet        | 有状态工作负载，Pod 有稳定序号、网络标识和独立存储           |
-| DaemonSet          | 每个（或指定）节点运行一个 Pod，用于日志/监控/网络插件       |
-| Job / CronJob      | 一次性任务 / 定时任务                                        |
-| Service            | **为一组动态变化的 Pod 提供稳定入口，并实现流量的负载均衡。** |
-| Ingress            | **七层 HTTP/HTTPS 路由**                                     |
-| ConfigMap / Secret | **配置与敏感信息注入**                                       |
-| Volume / PV / PVC  | **存储抽象**                                                 |
-| Namespace          | 逻辑隔离与资源配额边界                                       |
-| Label / Selector   | 松耦合的关联机制，Service/Deployment 都靠它找 Pod            |
-| Annotation         | 非标识性元数据，供工具使用                                   |
-| ServiceAccount     | Pod 访问 apiserver 的身份                                    |
-| RBAC 四件套        | Role / ClusterRole / RoleBinding / ClusterRoleBinding        |
+### 
