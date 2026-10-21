@@ -27,7 +27,7 @@ sudo ln -s /etc/nginx/sites-available/newsite  /etc/nginx/sites-enabled/
 | **`/etc/nginx/sites-enabled/`**          | 存放生效站点的软链接 |
 | `/var/www/mysite/index.html`             | 网页配置文件         |
 
-### 文件配置结构
+### nginx.conf文件配置结构
 
 ```nginx
 # 全局配置

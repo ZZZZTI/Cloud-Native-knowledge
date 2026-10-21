@@ -1,59 +1,8 @@
-> pod，探针，多容器
+> pod：生命周期、多容器（sidecar / init）、重启策略、探针
 
 ------
 
-
-
-
-
-```Shell
-# ============================================================
-# 单个pod （测试）
-# ============================================================
-apiVersion: v1     # API 版本
-kind: Pod          # 资源类型
-metadata:          # 元数据：用于标识和描述资源
-  name: basic-demo      # Pod 名称，必须在当前命名空间内唯一
-  labels:               # 标签：键值对，用于 Service、Deployment 等资源通过 selector 关联此 Pod
-    app: basic
-spec:              # 期望状态：描述 Pod 的规格，包含容器、卷、网络等配置
-  containers:           # 容器列表：一个 Pod 可以包含一个或多个容器（共享网络和存储）
-    - name: web           # 容器名称，在 Pod 内必须唯一
-      image: nginx:1.27   # 镜像地址
-      ports:              # 端口声明
-        - containerPort: 80
-      resources:          # 资源配额：用于调度和限制容器资源使用
-        requests:           # requests（请求资源）：调度器据此选择节点，容器启动时保留该资源
-          cpu: 100m             # 100 毫核 = 0.1 核 CPU
-          memory: 64Mi          # 64 MiB 内存
-        limits:             # limits（限制资源）：容器最多能使用的资源上限
-          cpu: 200m             # 最多使用 0.2 核 CPU，超出会被限流（throttle）
-          memory: 128Mi         # 最多使用 128 MiB 内存，超出会被 OOM Killer 终止
-          
-      startupProbe:       # 启动探针
-      livenessProbe:      # 存活探针
-      readinessProbe:     # 就绪探针
-```
-
-
-
-```Shell
-# 探针
-探针	           作用	                  失败后果	                            典型用途
-startupProbe	   判断容器是否启动完成	    超过阈值后重启容器	                     慢启动应用
-livenessProbe	   判断容器是否还活着	     连续失败达到failureThreshold后重启容器  进程假死、死锁
-readinessProbe	 判断容器是否准备好接流量	 从ServiceEndpointSlice摘除，不重启	   依赖未就绪、临时不可用
-
-
-# 多容器模式
-模式	           说明	                典型用途
-Init Container	主容器启动前执行完退出 	等待依赖、初始化数据，拉配置
-Sidecar	        辅助主容器	            日志、监控、代理
-Ambassador	    代理外部连接	         数据库代理、服务发现
-Adapter	        转换输出格式	         日志标准化、指标暴露，转成 Prometheus 格式
-```
-
-
+### 
 
 ### 核心概念
 
@@ -86,6 +35,59 @@ Adapter	        转换输出格式	         日志标准化、指标暴露，转
 
 
 
+
+```Shell
+# 探针
+探针	           作用	                  失败后果	                            典型用途
+startupProbe	   判断容器是否启动完成	    超过阈值后重启容器	                     慢启动应用
+livenessProbe	   判断容器是否还活着	     连续失败达到failureThreshold后重启容器  进程假死、死锁
+readinessProbe	 判断容器是否准备好接流量	 从ServiceEndpointSlice摘除，不重启	   依赖未就绪、临时不可用
+
+
+# 多容器模式
+模式	           说明	                 典型用途
+Init Container	主容器启动前执行完退出 	等待依赖、初始化数据，拉配置
+Sidecar	        辅助主容器	            日志、监控、代理
+Ambassador	    代理外部连接	         数据库代理、服务发现
+Adapter	        转换输出格式	         日志标准化、指标暴露，转成 Prometheus 格式
+
+Pod 生命周期：Pending → Running → Succeeded / Failed；异常时 Unknown（通常节点失联）。
+```
+
+
+
+
+
+
+
+```yaml
+# ============================================================
+# 单个pod （测试）
+# ============================================================
+apiVersion: v1     # API 版本
+kind: Pod          # 资源类型
+metadata:          # 元数据：用于标识和描述资源
+  name: basic-demo      # Pod 名称，必须在当前命名空间内唯一
+  labels:               # 标签：键值对，用于 Service、Deployment 等资源通过 selector 关联此 Pod
+    app: basic
+spec:              # 期望状态：描述 Pod 的规格，包含容器、卷、网络等配置
+  containers:           # 容器列表：一个 Pod 可以包含一个或多个容器（共享网络和存储）
+    - name: web           # 容器名称，在 Pod 内必须唯一
+      image: nginx:1.27   # 镜像地址
+      ports:              # 端口声明
+        - containerPort: 80
+      resources:          # 资源配额：用于调度和限制容器资源使用
+        requests:           # requests（请求资源）：调度器据此选择节点，容器启动时保留该资源
+          cpu: 100m             # 100 毫核 = 0.1 核 CPU
+          memory: 64Mi          # 64 MiB 内存
+        limits:             # limits（限制资源）：容器最多能使用的资源上限
+          cpu: 200m             # 最多使用 0.2 核 CPU，超出会被限流（throttle）
+          memory: 128Mi         # 最多使用 128 MiB 内存，超出会被 OOM Killer 终止
+          
+      startupProbe:       # 启动探针
+      livenessProbe:      # 存活探针
+      readinessProbe:     # 就绪探针
+```
 
 ### Pod
 
@@ -172,22 +174,3 @@ spec:
       emptyDir: {}
 ```
 
-**Pod 生命周期**：`Pending` → `Running` → `Succeeded` / `Failed`；异常时 `Unknown`（通常节点失联）。
-
-**三种探针的分工**：
-
-| 探针             | 失败后果                        | 用途                                         |
-| :--------------- | :------------------------------ | :------------------------------------------- |
-| `startupProbe`   | 重启容器                        | 保护启动慢的应用，成功后 liveness 才开始计时 |
-| `livenessProbe`  | **重启容器**                    | 检测死锁/假死                                |
-| `readinessProbe` | 从 Service 端点摘除，**不重启** | 检测能否对外服务                             |
-
-**QoS 等级**（决定节点资源紧张时谁先被杀）：
-
-| QoS          | 条件                                                     | 被驱逐优先级     |
-| :----------- | :------------------------------------------------------- | :--------------- |
-| `Guaranteed` | 所有容器都设了 requests 且等于 limits（CPU 和内存都要）  | 最低             |
-| `Burstable`  | 至少一个容器设了 requests 或 limits，但不满足 Guaranteed | 中               |
-| `BestEffort` | 所有容器都没设 requests/limits                           | 最高（最先被杀） |
-
-**静态 Pod**：由 kubelet 直接管理，放在 `/etc/kubernetes/manifests/`，不受 apiserver 控制（控制平面组件就是这么跑的）。`kubectl get pod` 能看到但删不掉。
