@@ -1,46 +1,68 @@
 # Welcome to ZTI's CloudNative knowledge repository
 
-> [!IMPORTANT]
->
 > I'm still learning......
+>
 
 ### Knowledge structure
 
 ```css
 .
-├── CLOUD
-│   ├── Observe1.md
-│   ├── Observe2.md
-│   ├── SRE.md
-│   └── cloud.md
-├── DEVOPS
-│   ├── Ansible.md
-│   ├── ArgoCD.md
-│   ├── Jenkins.md
-│   ├── Terraform.md
-│   └── git.md
 ├── K8S
-│   ├── CKAD.md
+│   ├── 架构
+│   │   ├── pod.md
+│   │   ├── 存储.md
+│   │   ├── 安全.md
+│   │   ├── 网络.md
+│   │   ├── 调度.md
+│   │   ├── 包管理.md
+│   │   └── 控制器.md
+│   ├── ArgoCD.md
+│   ├── CKAS.md
 │   ├── docker.md
-│   ├── helm+istio.md
-│   └── k8s.md
+│   └── 排障.md
 ├── LINUX
 │   ├── RHEL.md
 │   ├── SHELL.md
-│   ├── network.md
 │   ├── 内核.md
 │   ├── 安全.md
 │   ├── 文件.md
 │   ├── 文本.md
 │   ├── 目录.md
 │   ├── 管理.md
+│   ├── 网络.md
 │   └── 资源.md
-├── TOOLS
+├── PYTHON
+│   ├── Untitled.md
+│   └── gRPC.md
+├── SEC
+│   ├── network
+│   │   └── network.md
+│   └── safety
+│       └── safety.md
+├── SRE
+│   ├── CICD
+│   │   ├── Ansible.md
+│   │   ├── Jenkins.md
+│   │   ├── Terraform.md
+│   │   ├── gh.md
+│   │   └── git.md
+│   └── SRE
+│       ├── Observe1.md
+│       ├── Observe2.md
+│       ├── SRE.md
+│       └── cloud.md
+├── TOOL
 │   ├── Mysql
-│   ├── files.md
-│   ├── maven.md
+│   │   ├── basis.md
+│   │   ├── func.md
+│   │   ├── jdbc.md
+│   │   ├── lock.md
+│   │   ├── sql.md
+│   │   └── tools.md
 │   ├── nginx.md
-│   └── redis.md
+│   ├── redis.md
+│   ├── 文件.md
+│   └── 组件.md
 ├── KnowledgeGit.sh
 └── README.md
 ```

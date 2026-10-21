@@ -1,6 +1,6 @@
 > pod，探针，多容器
 
-
+------
 
 
 
@@ -44,13 +44,6 @@ startupProbe	   判断容器是否启动完成	    超过阈值后重启容器	 
 livenessProbe	   判断容器是否还活着	     连续失败达到failureThreshold后重启容器  进程假死、死锁
 readinessProbe	 判断容器是否准备好接流量	 从ServiceEndpointSlice摘除，不重启	   依赖未就绪、临时不可用
 
-# Qos class（服务质量）：是 K8s 用来决定 Pod 在节点资源紧张时优先级的一种机制。
-1.Guaranteed（保证型）：资源分配最稳定，最不容易被驱逐。
-条件：Pod 中每一个容器的 requests 必须严格等于 limits
-2.Burstable（突发型）：允许容器在空闲时突发使用超出 requests 的资源，但不能超过 limits
-条件：Pod 中至少有一个容器设置了 requests 或 limits。
-3.BestEffort（尽力而为型）：一旦节点资源紧张，这类 Pod 会被最先杀掉。
-条件：Pod 中所有容器都没有设置任何 requests 和 limits。
 
 # 多容器模式
 模式	           说明	                典型用途

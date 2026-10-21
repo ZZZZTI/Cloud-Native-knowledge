@@ -13,7 +13,7 @@
 | **`terraform.tf`**  | Terraform自身设置 |
 | `terraform.tfstate` | 状态文件          |
 
-### tf文件语法：HCL（声明式）
+### .tf 的文件语法：HCL（声明式）
 
 ```shell
 # 一个块的格式

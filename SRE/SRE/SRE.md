@@ -5,6 +5,13 @@
 ### 概念
 
 ```Shell
+1.SLO/SLA/SLI
+2.错误预算
+3.压测
+4.容灾
+5.混沌工程
+
+
 1. SLI / SLO / SLA
 SLI（Service Level Indicator）：服务水平的量化指标，如请求延迟、错误率、可用性。
 SLO（Service Level Objective）：对 SLI 设定的内部目标，例如“99.9% 的请求延迟小于 200ms”。
