@@ -12,7 +12,7 @@ Values	    参数值，覆盖模板里的默认值
 Repository	Chart 仓库（如 Bitnami、官方 stable）
 
 # Chart架构
-testchart/
+testchartapp/
 ├── Chart.yaml          # 元数据（名称、版本、依赖）
 ├── charts              # 依赖的子 chart
 ├── templates/          # K8s YAML 模板
@@ -43,11 +43,13 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
 {{- end -}}
 
-
-
-
-checksum/config 注解：改 ConfigMap 自动触发滚动更新
-Hooks：在特定时机执行 Job
+# Hooks
+# 在特定时机执行的Job资源类型，Helm 会在指定时机创建它、等它完成、再继续
+Job.annotations:"helm.sh/hook": pre/post-upgrade,install,delete  # 执行时机
+                "helm.sh/hook-weight": "-5"  # 权重（小的先执行）
+                "hook-delete-policy":before-hook-creation（下次执行前删旧的）
+                                     hook-succeeded（成功后删）
+                                     hook-failed（失败后删）
 ```
 
 ### helm命令
@@ -100,14 +102,6 @@ helm template <release-name> ./<chart> -f values.yaml   # 【极力推荐】本�
 helm lint ./<chart>                      # 检查 Chart 语法错误
 helm package ./<chart>                   # 打包 Chart 为 .tgz 文件
 ```
-
-
-
-
-
-
-
-
 
 ### Kustomize
 
