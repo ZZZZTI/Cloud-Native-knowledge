@@ -148,3 +148,14 @@ spec:
   runtimeClassName: nvidia            # 指定 RuntimeClass，GPU 场景选 nvidia 运行时
   activeDeadlineSeconds: 3600         # Pod 运行超时被终止（一般配合 Job 使用）
 ```
+
+### Namespace.yaml
+
+```Shell
+# 命名空间：逻辑隔离集群资源，方便多团队/多环境管理
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-namespace
+```
+

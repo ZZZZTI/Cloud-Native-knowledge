@@ -1,4 +1,4 @@
-> helm，Kustomize
+> 包管理：helm，Kustomize
 
 ------
 
@@ -9,17 +9,50 @@
 Chart	      一个应用包（目录结构：Chart.yaml + values.yaml + templates/）
 Release	    Chart 的一次安装实例（每个 release 有名字，存在集群的 Secret 里）
 Values	    参数值，覆盖模板里的默认值
-Repository	Chart 仓库（如 Bitnami、官方 stable） 
+Repository	Chart 仓库（如 Bitnami、官方 stable）
+
 # Chart架构
-testchart
+testchart/
 ├── Chart.yaml          # 元数据（名称、版本、依赖）
 ├── charts              # 依赖的子 chart
-├── templates           # K8s YAML 模板
-└── values.yaml         # 参数化配置文件：用于template里引用
-_helpers.tpl：模板复用的核心
+├── templates/          # K8s YAML 模板
+│   ├── _helpers.tpl    # 模板辅助函数（不渲染成资源，只定义可复用的片段）
+│   ├── deployment.yaml
+│   └── service.yaml
+└── values.yaml         # 默认参数值（用户可覆盖）
+
+# 模版语法
+{{ .Values.xxx }}       # 引用 values.yaml 里的值
+{{ .Release.Name }}	    # Release 名（helm install 时指定的名字）
+{{ .Release.Namespace }}#	Release 所在 namespace
+{{ .Chart.Name }}	      # chart 名（来自 Chart.yaml）
+{{ .Chart.AppVersion }}	# 应用版本
+{{ include "myapp.fullname" . }}	# 调用 _helpers.tpl 里定义的片段	
+{{ template "myapp.fullname" . }}	# 同上，但不能用于管道	一般用 include
+{{ required "msg" .Values.xxx }}	# 值不存在时渲染失败并报错
+{{ toYaml .Values.resources }}	  # 把 map 转成 YAML 字符串
+
+# _helpers.tpl写法
+{{- define "myapp.fullname" -}}
+{{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "myapp.labels" -}}
+app.kubernetes.io/name: {{ .Chart.Name }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
+{{- end -}}
+
+
+
+
 checksum/config 注解：改 ConfigMap 自动触发滚动更新
 Hooks：在特定时机执行 Job
+```
 
+### helm命令
+
+```Shell
 # ---------- 一、远程仓库管理 (Repo) ----------
 helm repo add <repo-name> <url>          # 添加仓库
 helm repo add ingress-nginx https://helm-charts.itboon.top/ingress-nginx
@@ -68,6 +101,14 @@ helm lint ./<chart>                      # 检查 Chart 语法错误
 helm package ./<chart>                   # 打包 Chart 为 .tgz 文件
 ```
 
+
+
+
+
+
+
+
+
 ### Kustomize
 
 ```Shell
@@ -111,17 +152,3 @@ kustomize edit add secret db-secret --from-literal=password=xxx
 kustomize version
 kubectl kustomize overlays/prod | yq 'select(.kind=="Deployment")'
 ```
-
-### 核心概念
-
-1. **Helm**
-   - 结构：`Chart.yaml` / `values.yaml` / `templates/` / `charts/`
-   - 渲染顺序、`_helpers.tpl`、`{{ .Values }}`、`{{ .Release }}`、`include`/`template`、`required`、`toYaml`
-   - 生命周期：`helm install/upgrade/rollback/uninstall`、`helm template`（只渲染，不部署 —— 调试神器）、`helm diff`（插件）
-   - Release 状态存为集群 Secret（`sh.helm.release.v1.*`），改名/改命名空间不生效
-   - Hooks：`pre-install`/`post-upgrade`/`test`
-2. **Kustomize**（kubectl 内置）
-   - `base` + `overlays`（`kustomization.yaml`）
-   - `patchesStrategicMerge` / `patches`（JSON6902）/ `images` / `namePrefix` / `configMapGenerator`
-   - `kubectl apply -k overlays/prod`
-3. **Helm vs Kustomize**：Helm 适合分发（参数化模板），Kustomize 适合内部多环境（纯 YAML 叠加）。实践中常混用。
