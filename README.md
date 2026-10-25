@@ -63,7 +63,6 @@
 │   ├── redis.md
 │   ├── 文件.md
 │   └── 组件.md
-├── KnowledgeGit.sh
 └── README.md
 ```
 
