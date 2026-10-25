@@ -2,34 +2,26 @@
 
 ------
 
-### 
+**CKA 考核领域（侧重运维管理）**
 
-```Shell
-故障排除（30%）：权重最高。重点考察排查节点 NotReady、Pod 启动失败（CrashLoopBackOff）、网络不通等问题的能力，需熟练使用 kubectl describe、logs、exec。
+| 考核领域                                    | 权重    | 核心内容举例                                                 |
+| :------------------------------------------ | :------ | :----------------------------------------------------------- |
+| **故障排查 (Troubleshooting)**              | **30%** | 诊断节点 NotReady、Pod 启动失败、应用无响应、网络不通、存储挂载失败等问题 |
+| **集群架构、安装与配置**                    | **25%** | 使用 kubeadm 部署/升级集群、etcd 备份与恢复、RBAC 权限配置、节点维护（cordon/drain） |
+| **服务与网络 (Services & Networking)**      | **20%** | Service 类型、Ingress、NetworkPolicy 的基础配置              |
+| **工作负载与调度 (Workloads & Scheduling)** | **15%** | Deployment、DaemonSet、资源限额、节点亲和性等调度策略        |
+| **存储 (Storage)**                          | **10%** | PV、PVC、StorageClass 的配置与管理                           |
 
-集群架构、安装与配置（25%）：重点包括使用 kubeadm 安装/升级集群、etcd 备份与恢复、RBAC 权限配置以及管理高可用集群。
+**CKS 考核领域（侧重安全加固）**
 
-服务与网络（20%）：考察 Service 类型配置、Ingress 规则、Network Policy 以及 CoreDNS 的配置与排错。
-工作负载与调度（15%）：涉及 Deployment 的滚动更新与回滚、Pod 调度策略（亲和性/污点）、资源配额及 HPA 配置。
-
-存储（10%）：主要考察 PV/PVC/StorageClass 的创建与绑定，以及将存储挂载到 Pod 中。
-```
-
-## CKA 
-
-| 考试域（权重）            | 必练                                                         |
-| :------------------------ | :----------------------------------------------------------- |
-| 故障排查（30%）           | Pod 状态机全部异常、Service 端点、DNS、节点 NotReady、日志三连 |
-| 集群架构/安装/配置（25%） | `kubeadm` init/join/upgrade、etcd 备份恢复、RBAC、HA 拓扑    |
-| 服务与网络（20%）         | Service 四种类型、Ingress、NetworkPolicy、CoreDNS 排错       |
-| 工作负载与调度（15%）     | 滚动更新与回滚、亲和/反亲和、污点容忍、配额、HPA             |
-| 存储（10%）               | PV/PVC/StorageClass、绑定排错、挂载到 Pod                    |
-
-**CKA 实操高频题**：升级集群、etcd 备份恢复、创建 NetworkPolicy、修一个 `CrashLoopBackOff`、把 Pod 调度到指定节点、创建 PVC 并挂载、RBAC 授权、暴露 Service。建议全部练到不看文档能敲完。
-
-
-
-
+| 考核领域                         | 权重    | 核心内容举例                                                 |
+| :------------------------------- | :------ | :----------------------------------------------------------- |
+| **监控、日志与运行时安全**       | **20%** | 使用 **Falco** 进行运行时威胁检测、AppArmor/seccomp 配置、审计日志分析 |
+| **供应链安全 (Supply Chain)**    | **20%** | 镜像签名与验证 (cosign)、**Trivy** 漏洞扫描、SBOM、OPA/Gatekeeper 准入控制 |
+| **微服务漏洞最小化**             | **20%** | Pod 安全标准 (Pod Security Standards)、Secret 管理、多租户隔离、Pod 间加密 |
+| **集群安装与加固**               | **15%** | 使用 CIS Benchmark 检查安全配置、限制 API 访问、Ingress TLS 设置、保护节点元数据 |
+| **集群强化 (Cluster Hardening)** | **15%** | 精细化 RBAC、ServiceAccount 权限最小化、API Server 安全配置  |
+| **系统强化 (System Hardening)**  | **10%** | 最小化主机操作系统攻击面、限制外部网络访问、内核强化工具使用 |
 
 
 

@@ -50,6 +50,10 @@ Job.annotations:"helm.sh/hook": pre/post-upgrade,install,delete  # 执行时机
                 "hook-delete-policy":before-hook-creation（下次执行前删旧的）
                                      hook-succeeded（成功后删）
                                      hook-failed（失败后删）
+                                     
+# checksum 注解                                     
+helm.annotations.checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+# ConfigMap 变 → hash 变 → 注解变 → podTemplate 变 → 触发滚动更新
 ```
 
 ### helm命令
@@ -103,15 +107,15 @@ helm lint ./<chart>                      # 检查 Chart 语法错误
 helm package ./<chart>                   # 打包 Chart 为 .tgz 文件
 ```
 
-### Kustomize
+### Kustomize（ 原生配置管理工具）
 
 ```Shell
-base/                    # 公共基础
+base/                    # 公共基础配置（所有环境共享的 Deployment / Service 等）
 ├── kustomization.yaml
 ├── deployment.yaml
 └── service.yaml
 
-overlays/
+overlays/                # 差异环境（只写要改的字段）
 ├── dev/                 # dev 环境
 │   ├── kustomization.yaml
 │   └── patch.yaml       # 覆盖 dev 特有配置
