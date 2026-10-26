@@ -70,24 +70,24 @@
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ ① 交付链路  代码 → 构建 → 镜像 → 交付 → 运行时 → 可观测 → 决策           │
-│              git    Jenkins  Docker  ArgoCD   K8s    Prom/SLO            │
+│ ① 交付链路  代码 →  构建  →  镜像  →  交付  → 运行时 →  可观测 →  决策         │
+│             git  Jenkins  Docker  ArgoCD    K8s    Prom/SLO              │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ ② 知识分层                                                               │
-│    L5 可观测与稳定性  SRE/SRE (4)                                        │
+│ ② 知识分层                                                                │
+│    L5 可观测与稳定性  SRE/SRE (4)                                           │
 │       Prometheus · Loki · Tempo · SLI/SLO · Alertmanager                 │
-│    L4 交付与自动化    SRE/CICD (6) + ArgoCD (1)                          │
+│    L4 交付与自动化    SRE/CICD (6) + ArgoCD (1)                            │
 │       git · gh · Jenkins · Terraform · Ansible · tccli · GitOps          │
-│    L3 编排与运行时    K8S (5) + K8S/架构 (8)                             │
-│       kubeadm HA · pod · 控制器 · 网络 · 存储 · 调度 · helm · docker     │
-│    L2 中间件与应用    TOOL (4) + Mysql (6)                               │
-│       MySQL · Nginx · Redis · 文件格式 · 组件                            │
-│    L1 系统基础        LINUX (11) + SEC/network (1)                       │
-│       内核 · 网络 · 资源 · 管理 · 目录 · SHELL · 网络原理                │
+│    L3 编排与运行时    K8S (5) + K8S/架构 (8)                                │
+│       kubeadm HA · pod · 控制器 · 网络 · 存储 · 调度 · helm · docker        │
+│    L2 中间件与应用    TOOL (4) + Mysql (6)                                 │
+│       MySQL · Nginx · Redis · 文件格式 · 组件                              │
+│    L1 系统基础        LINUX (11) + SEC/network (1)                        │
+│       内核 · 网络 · 资源 · 管理 · 目录 · SHELL · 网络原理                     │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ ③ 横切      安全  K8S/架构/安全 · SEC/safety · LINUX/本机/安全           │
-│             排障  K8S/排障（贯穿 L1–L3）                                 │
-│             认证  K8S/CKA · SEC/safety/CKS                               │
+│ ③ 横切      安全  K8S/架构/安全 · SEC/safety · LINUX/本机/安全               │
+│             排障  K8S/排障（贯穿 L1–L3）                                    │
+│             认证  K8S/CKA · SEC/safety/CKS                                │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 

@@ -82,3 +82,13 @@ CBS,DTS,COS,CLB,快照
 | 云联网         | 云联网 CCN                | 云企业网 CEN        | AWS Transit Gateway        |
 | 关系型数据库   | 云数据库 TencentDB        | 云数据库 RDS        | Amazon RDS                 |
 | 身份访问管理   | **访问管理 CAM**          | **访问控制 RAM**    | **AWS IAM**                |
+
+
+
+```Shell
+类型	 提供什么	                 用户负责什么
+IaaS	虚拟机、网络、存储等基础设施	操作系统、中间件、应用
+PaaS	应用运行平台、数据库、中间件	只写应用和配置
+SaaS	直接可用的软件	             只管使用
+```
+
