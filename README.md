@@ -32,8 +32,19 @@
 │   ├── 网络.md
 │   └── 资源.md
 ├── PYTHON
-│   ├── Untitled.md
-│   └── gRPC.md
+│   ├── 数据.md
+│   ├── 字符串.md
+│   ├── 函数.md
+│   ├── basic.md
+│   ├── 异常与易错点.md
+│   ├── 标准库.md
+│   ├── 文本与数据.md
+│   ├── 并发.md
+│   ├── 网络与API.md
+│   ├── 可观测与自动化.md
+│   ├── 工程化.md
+│   ├── gRPC.md
+│   └── test1.md
 ├── SEC
 │   ├── network
 │   │   └── network.md

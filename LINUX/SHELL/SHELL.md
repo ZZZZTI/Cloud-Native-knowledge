@@ -84,7 +84,7 @@ exit (0/1)            # 退出脚本
 
 ### 变量
 
-```Shell
+```bash
 # 定义变量
 [export] [readonly] time="today"/$(date)
  [全局^]   [只读^]
