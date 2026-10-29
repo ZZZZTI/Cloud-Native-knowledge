@@ -13,24 +13,26 @@
 
 ## 环境里已经准备好的东西
 
-| 能力                                                 | 状态                                                     |
-| ---------------------------------------------------- | -------------------------------------------------------- |
-| GitLab CE Web + API（<http://localhost:8929>）       | 可用，root 密码在 `gitlab-lab/.env`                      |
-| SSH（2222）/ HTTPS 推拉代码                          | 都可用，HTTPS 由 glab 凭据助手免密                       |
-| `glab` 命令行                                        | 已认证，默认 host = `localhost`                          |
-| 项目级 Runner（docker executor，tag `docker,local`） | 已在线，CI 可开箱运行                                    |
-| 示例项目 `demo/demo-app`                             | 含 1 个 Issue、1 个已合并 MR、1 条成功流水线，可对照着看 |
+```
+能力                                                状态
+GitLab CE Web + API（<http://localhost:8929>）      可用，root 密码在 gitlab-lab/.env
+SSH（2222）/ HTTPS 推拉代码                         都可用，HTTPS 由 glab 凭据助手免密
+glab 命令行                                         已认证，默认 host = localhost
+项目级 Runner（docker executor，tag docker,local）  已在线，CI 可开箱运行
+示例项目 demo/demo-app                              含 1 个 Issue、1 个已合并 MR、1 条成功流水线，可对照着看
+```
 
 遇到问题先查 [gitlab-lab/README.md](gitlab-lab/README.md) 的「常见问题」。
 
 ## 建议节奏
 
-| 周      | 阶段      | 重点                     | 产出                                 |
-| ------- | --------- | ------------------------ | ------------------------------------ |
-| 第 1 周 | 一 ~ 三   | 对象模型、仓库、Issue    | 一个带分支保护的仓库 + 3 个 Issue    |
-| 第 2 周 | 四 ~ 五   | MR 工作流、CI 基础       | 一次完整 MR + 通过的流水线           |
-| 第 3 周 | 六 ~ 七   | Runner、制品、Registry   | 自建 Runner + 镜像/制品产物          |
-| 第 4 周 | 八 ~ 十一 | 权限、发布、运维、自动化 | 群组结构 + 备份恢复演练 + 自动化脚本 |
+```
+周       阶段       重点                      产出
+第 1 周  一 ~ 三    对象模型、仓库、Issue     一个带分支保护的仓库 + 3 个 Issue
+第 2 周  四 ~ 五    MR 工作流、CI 基础        一次完整 MR + 通过的流水线
+第 3 周  六 ~ 七    Runner、制品、Registry    自建 Runner + 镜像/制品产物
+第 4 周  八 ~ 十一  权限、发布、运维、自动化  群组结构 + 备份恢复演练 + 自动化脚本
+```
 
 > 每天 1–1.5 小时即可。每阶段末尾的「验收」是硬指标，过不了就别往下走。
 
@@ -562,30 +564,32 @@ glab api --method POST projects/:id/hooks \
 
 ## 附录 A：glab 命令速查
 
-| 场景         | 命令                                                         |
-| ------------ | ------------------------------------------------------------ |
-| 登录 / 状态  | `glab auth login` · `glab auth status`                       |
-| 建库 / 克隆  | `glab repo create x` · `glab repo clone g/p`                 |
-| 仓库信息     | `glab repo view` · `glab repo view --web`                    |
-| Issue 增删查 | `glab issue create/list/view/close/reopen/note`              |
-| MR 全流程    | `glab mr create/list/view/note/checkout/merge/rebase`        |
-| 流水线       | `glab ci status` · `glab ci view` · `glab ci run` · `glab ci list` · `glab ci trace` |
-| 变量         | `glab variable list/set/get/delete`                          |
-| 发布         | `glab release create/list`                                   |
-| 原始 API     | `glab api <endpoint> [-f key=val] [--paginate]`              |
-| 别名         | `glab alias set co "mr checkout"`                            |
+```
+场景          命令
+登录 / 状态   glab auth login · glab auth status
+建库 / 克隆   glab repo create x · glab repo clone g/p
+仓库信息      glab repo view · glab repo view --web
+Issue 增删查  glab issue create/list/view/close/reopen/note
+MR 全流程     glab mr create/list/view/note/checkout/merge/rebase
+流水线        glab ci status · glab ci view · glab ci run · glab ci list · glab ci trace
+变量          glab variable list/set/get/delete
+发布          glab release create/list
+原始 API      glab api <endpoint> [-f key=val] [--paginate]
+别名          glab alias set co "mr checkout"
+```
 
 ## 附录 B：本地环境常见坑
 
-| 现象                                         | 原因                               | 处理                                                         |
-| -------------------------------------------- | ---------------------------------- | ------------------------------------------------------------ |
-| 打开 8929 显示 502/503                       | GitLab 首启未完成                  | 等 3–8 分钟，`docker compose logs -f gitlab` 观察            |
-| `ssh -T git@localhost` 连到本机 sshd         | 端口 22 被 macOS sshd 占           | 必须用 `-p 2222`                                             |
-| `git clone http://localhost:8929/...` 要密码 | HTTPS 需 PAT                       | 用 `glab auth login` 生成 token，或用 SSH                    |
-| CI job 一直 pending                          | 没 runner / tag 不匹配 / protected | 看 Settings → CI/CD → Runners                                |
-| Runner 容器连不上 `localhost:8929`           | 容器内 localhost 是它自己          | 用 `host.docker.internal` 或 `172.17.0.1`                    |
-| 拉了依赖后 VM 内存吃满                       | Colima 只有 8 GB                   | `docker compose` 已限 5 GB；必要时停 kind 集群 `docker stop lab-control-plane` |
-| 重启电脑后打不开                             | Colima 没自启                      | `colima start && docker compose up -d`                       |
+```
+现象                                        原因                                处理
+打开 8929 显示 502/503                      GitLab 首启未完成                   等 3–8 分钟，docker compose logs -f gitlab 观察
+ssh -T git@localhost 连到本机 sshd          端口 22 被 macOS sshd 占            必须用 -p 2222
+git clone http://localhost:8929/... 要密码  HTTPS 需 PAT                        用 glab auth login 生成 token，或用 SSH
+CI job 一直 pending                         没 runner / tag 不匹配 / protected  看 Settings → CI/CD → Runners
+Runner 容器连不上 localhost:8929            容器内 localhost 是它自己           用 host.docker.internal 或 172.17.0.1
+拉了依赖后 VM 内存吃满                      Colima 只有 8 GB                    docker compose 已限 5 GB；必要时停 kind 集群 docker stop lab-control-plane
+重启电脑后打不开                            Colima 没自启                       colima start && docker compose up -d
+```
 
 ## 附录 C：自测清单
 

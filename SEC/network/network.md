@@ -6,12 +6,13 @@
 
 ### 网络模型
 
-| TCP/IP 模型 |        OSI 模型        |          协议          |             典型故障现象              |
-| :---------: | :--------------------: | :--------------------: | :-----------------------------------: |
-|   应用层    | 应用层、表示层、会话层 |  HTTP, DNS, SSH, TLS   |      403、404、502、域名解析失败      |
-|   传输层    |         传输层         |     TCP, UDP, 端口     | Connection refused, Timeout, 丢包重传 |
-|   网际层    |         网络层         |     IP, ICMP, 路由     |     ping不通、traceroute卡在某跳      |
-| 网络接口层  |   数据链路层、物理层   | 以太网, MAC, ARP, 网卡 |      网卡down、MAC冲突、网线松了      |
+```
+TCP/IP 模型  OSI 模型              协议                     典型故障现象
+应用层       应用层、表示层、会话层    HTTP, DNS, SSH, TLS     403、404、502、域名解析失败
+传输层       传输层                 TCP, UDP, 端口           Connection refused, Timeout, 丢包重传
+网际层       网络层                 IP, ICMP, 路由           ping不通、traceroute卡在某跳
+网络接口层   数据链路层、物理层       以太网, MAC, ARP, 网卡     网卡down、MAC冲突、网线松了
+```
 
 ### 重要IP
 
@@ -37,19 +38,20 @@ C类:192.168.x.x/16
 
 ### 重要port
 
-| 端口       | 服务    | 协议    | 说明                       |
-| ---------- | ------- | ------- | -------------------------- |
-| 22         | SSH     | TCP     | 远程登录和文件传输         |
-| 20/21      | FTP     | TCP     | 文件传输                   |
-| 80         | HTTP    | TCP     | 普通 Web 访问              |
-| 443        | HTTPS   | TCP     | 加密 Web 访问              |
-| 8080       | HTTPAlt | TCP     | Tomcat、反向代理、测试环境 |
-| 25/465/587 | SMTP    | TCP     | 邮件服务器间发送邮件       |
-| 53         | DNS     | UDP/TCP | 域名系统                   |
-| 123        | NTP     | UDP     | 网络时间协议               |
-| 3306       | MySQL   | TCP     | 数据库                     |
-| 6379       | Redis   | TCP     | 缓存                       |
-| 9092       | KafKa   | TCP     | 消息队列                   |
+```
+端口         服务     协议      说明
+22          SSH      TCP      远程登录和文件传输
+20/21       FTP      TCP      文件传输
+80          HTTP     TCP      普通 Web 访问
+443         HTTPS    TCP      加密 Web 访问
+8080        HTTPAlt  TCP      Tomcat、反向代理、测试环境
+25/465/587  SMTP     TCP      邮件服务器间发送邮件
+53          DNS      UDP/TCP  域名系统
+123         NTP      UDP      网络时间协议
+3306        MySQL    TCP      数据库
+6379        Redis    TCP      缓存
+9092        KafKa    TCP      消息队列
+```
 
 ### TCP三次握手（建立连接）
 

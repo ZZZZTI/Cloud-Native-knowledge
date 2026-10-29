@@ -137,12 +137,13 @@ async def main():
 asyncio.run(main())
 ```
 
-| | requests | httpx |
-| :-- | :-- | :-- |
-| 同步 | ✅ | ✅ |
-| 异步 | ❌ | ✅ |
-| HTTP/2 | 需额外包 | ✅ 内置 |
-| 生态成熟度 | 最成熟 | 较新但够用 |
+```
+            requests  httpx
+同步        ✅        ✅
+异步        ❌        ✅
+HTTP/2      需额外包  ✅ 内置
+生态成熟度  最成熟    较新但够用
+```
 
 **结论**：只做同步用 `requests`；要并发拉几百个接口用 `httpx.AsyncClient`。
 
@@ -208,10 +209,11 @@ print("总条数:", len(pods))
 
 两种常见分页模型：
 
-| 模型 | 参数 | 判断结束 |
-| :-- | :-- | :-- |
-| 游标（cursor/continue） | `cursor=xxx` | 返回为空 |
-| 偏移（offset/limit） | `offset=n&limit=100` | 返回条数 < limit |
+```
+模型                     参数                判断结束
+游标（cursor/continue）  cursor=xxx          返回为空
+偏移（offset/limit）     offset=n&limit=100  返回条数 < limit
+```
 
 ⚠️ 偏移分页在数据变动时**会漏或重复**，能用游标就别用偏移。
 

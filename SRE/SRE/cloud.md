@@ -67,21 +67,22 @@ CBS,DTS,COS,CLB,快照
 云上安全体系架构（15%）：考核 DDoS 防护、WAF、安全审计、访问控制（RAM）、安全组策略等。
 ```
 
-| 服务类别       | 腾讯云                    | 阿里云              | AWS                        |
-| :------------- | :------------------------ | :------------------ | :------------------------- |
-| 云服务器       | **云服务器 CVM**          | **云服务器 ECS**    | **Amazon EC2**             |
-| 轻量应用服务器 | 轻量应用服务器 Lighthouse | 轻量应用服务器 SWAS | Amazon Lightsail           |
-| 弹性伸缩       | 弹性伸缩 AS               | 弹性伸缩 ESS        | EC2 Auto Scaling           |
-| K8s 容器服务   | **容器服务 TKE**          | **容器服务 ACK**    | **Amazon EKS**             |
-| 对象存储       | **对象存储 COS**          | **对象存储 OSS**    | **Amazon S3**              |
-| 块存储         | 云硬盘 CBS                | 块存储 EBS          | Amazon EBS                 |
-| 文件存储       | 文件存储 CFS              | 文件存储 NAS        | Amazon EFS                 |
-| 归档存储       | 归档存储 CAS              | 归档存储 OAS        | Amazon S3 Glacier          |
-| 私有网络       | **私有网络 VPC**          | **专有网络 VPC**    | **Amazon VPC**             |
-| 负载均衡       | 负载均衡 CLB              | 负载均衡 SLB        | Elastic Load Balancing ELB |
-| 云联网         | 云联网 CCN                | 云企业网 CEN        | AWS Transit Gateway        |
-| 关系型数据库   | 云数据库 TencentDB        | 云数据库 RDS        | Amazon RDS                 |
-| 身份访问管理   | **访问管理 CAM**          | **访问控制 RAM**    | **AWS IAM**                |
+```
+服务类别        腾讯云                     阿里云               AWS
+云服务器        云服务器 CVM               云服务器 ECS         Amazon EC2
+轻量应用服务器   轻量应用服务器 Lighthouse   轻量应用服务器 SWAS   Amazon Lightsail
+弹性伸缩        弹性伸缩 AS                弹性伸缩 ESS         EC2 Auto Scaling
+K8s 容器服务    容器服务 TKE               容器服务 ACK         Amazon EKS
+对象存储        对象存储 COS               对象存储 OSS         Amazon S3
+块存储          云硬盘 CBS                 块存储 EBS          Amazon EBS
+文件存储        文件存储 CFS               文件存储 NAS         Amazon EFS
+归档存储        归档存储 CAS               归档存储 OAS         Amazon S3 Glacier
+私有网络        私有网络 VPC               专有网络 VPC         Amazon VPC
+负载均衡        负载均衡 CLB               负载均衡 SLB         Elastic Load Balancing ELB
+云联网          云联网 CCN                 云企业网 CEN         AWS Transit Gateway
+关系型数据库     云数据库 TencentDB         云数据库 RDS         Amazon RDS
+身份访问管理     访问管理 CAM               访问控制 RAM         AWS IAM
+```
 
 
 

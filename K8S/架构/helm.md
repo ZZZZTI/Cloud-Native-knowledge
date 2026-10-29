@@ -1,6 +1,6 @@
 > 包管理：helm，Kustomize
 
-------
+---
 
 ### helm
 
@@ -27,7 +27,7 @@ testchartapp/
 {{ .Release.Namespace }}#	Release 所在 namespace
 {{ .Chart.Name }}	      # chart 名（来自 Chart.yaml）
 {{ .Chart.AppVersion }}	# 应用版本
-{{ include "myapp.fullname" . }}	# 调用 _helpers.tpl 里定义的片段	
+{{ include "myapp.fullname" . }}	# 调用 _helpers.tpl 里定义的片段
 {{ template "myapp.fullname" . }}	# 同上，但不能用于管道	一般用 include
 {{ required "msg" .Values.xxx }}	# 值不存在时渲染失败并报错
 {{ toYaml .Values.resources }}	  # 把 map 转成 YAML 字符串
@@ -50,8 +50,8 @@ Job.annotations:"helm.sh/hook": pre/post-upgrade,install,delete  # 执行时机
                 "hook-delete-policy":before-hook-creation（下次执行前删旧的）
                                      hook-succeeded（成功后删）
                                      hook-failed（失败后删）
-                                     
-# checksum 注解                                     
+                                   
+# checksum 注解                                   
 helm.annotations.checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 # ConfigMap 变 → hash 变 → 注解变 → podTemplate 变 → 触发滚动更新
 ```
@@ -69,7 +69,7 @@ helm repo remove <repo-name>             # 移除仓库
 # ---------- 二、查找与查看 (Search & Inspect) ----------
 helm search repo <keyword>               # 在已添加的仓库中搜索 Chart
 helm search hub <keyword>                # 在 Artifact Hub 中搜索
-helm show values <repo>/<chart>          # 【重要】查看 Chart 默认的 values.yaml
+helm show values <repo>/<chart>          # [重要] 查看 Chart 默认的 values.yaml
 helm show readme <repo>/<chart>          # 查看 Chart 的说明文档
 helm show chart <repo>/<chart>           # 查看 Chart 的基本信息
 

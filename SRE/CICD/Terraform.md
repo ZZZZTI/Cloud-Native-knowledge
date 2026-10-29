@@ -4,14 +4,15 @@
 
 ### 配置文件
 
-|       文件名        | 内容              |
-| :-----------------: | :---------------- |
-|      `main.tf`      | 核心资源配置      |
-|    `provider.tf`    | Provider 声明     |
-|   `variables.tf`    | 接收的输入变量    |
-|    `outputs.tf`     | 执行后的对外输出  |
-| **`terraform.tf`**  | Terraform自身设置 |
-| `terraform.tfstate` | 状态文件          |
+```
+文件名              内容
+main.tf            核心资源配置
+provider.tf        Provider 声明
+variables.tf       接收的输入变量
+outputs.tf         执行后的对外输出
+terraform.tf       Terraform自身设置
+terraform.tfstate  状态文件
+```
 
 ### .tf 的文件语法：HCL（声明式）
 

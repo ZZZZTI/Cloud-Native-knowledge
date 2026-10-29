@@ -6,14 +6,15 @@
 
 ## 1. gRPC 和 REST 的区别
 
-| 维度 | REST / JSON | gRPC |
-| :-- | :-- | :-- |
-| 传输 | HTTP/1.1（也可 HTTP/2） | **HTTP/2 多路复用** |
-| 载荷 | 文本 JSON | **二进制 protobuf**，更小更快 |
-| 接口定义 | OpenAPI（可选） | **.proto 强契约** |
-| 客户端 | 手工写 | **自动生成 stub** |
-| 流式 | 不支持（或 SSE/WS） | **原生双向流** |
-| 排障 | `curl` | `grpcurl` |
+```
+维度      REST / JSON              gRPC
+传输      HTTP/1.1（也可 HTTP/2）  HTTP/2 多路复用
+载荷      文本 JSON                二进制 protobuf，更小更快
+接口定义  OpenAPI（可选）          .proto 强契约
+客户端    手工写                   自动生成 stub
+流式      不支持（或 SSE/WS）      原生双向流
+排障      curl                     grpcurl
+```
 
 **一句话**：服务之间内部通信用 gRPC，对外暴露用 REST。
 
@@ -86,17 +87,18 @@ for event in stub.Watch(probe_pb2.WatchRequest(target="api"), timeout=60):
 
 ### 错误码不是 HTTP 状态码
 
-| gRPC 码 | 含义 | 类比 HTTP |
-| :-- | :-- | :-- |
-| `OK` | 成功 | 200 |
-| `INVALID_ARGUMENT` | 参数错 | 400 |
-| `UNAUTHENTICATED` | 没认证 | 401 |
-| `PERMISSION_DENIED` | 没权限 | 403 |
-| `NOT_FOUND` | 不存在 | 404 |
-| `DEADLINE_EXCEEDED` | **超时**（最常见） | 504 |
-| `UNAVAILABLE` | 服务不可用 | 503 |
-| `RESOURCE_EXHAUSTED` | 限流 | 429 |
-| `UNIMPLEMENTED` | 方法未实现 | 501 |
+```
+gRPC 码             含义            类比 HTTP
+OK                  成功            200
+INVALID_ARGUMENT    参数错          400
+UNAUTHENTICATED     没认证          401
+PERMISSION_DENIED   没权限          403
+NOT_FOUND           不存在          404
+DEADLINE_EXCEEDED   超时（最常见）  504
+UNAVAILABLE         服务不可用      503
+RESOURCE_EXHAUSTED  限流            429
+UNIMPLEMENTED       方法未实现      501
+```
 
 ```python
 # 只对可恢复的错误重试
@@ -169,12 +171,13 @@ grpcurl -plaintext -import-path . -proto probe.proto \
 grpcurl -plaintext localhost:50051 grpc.health.v1.Health/Check
 ```
 
-| 现象 | 原因 |
-| :-- | :-- |
-| `DEADLINE_EXCEEDED` | 服务端慢，或超时设太短 |
-| `UNAVAILABLE` / `failed to connect to all addresses` | 地址错、端口不通、TLS 配置不符 |
-| `UNIMPLEMENTED` | 方法名拼错，或客户端 proto 版本旧 |
-| 偶发 `UNAVAILABLE` | 长连接被 LB 断开，需要 keepalive |
+```
+现象                                              原因
+DEADLINE_EXCEEDED                                 服务端慢，或超时设太短
+UNAVAILABLE / failed to connect to all addresses  地址错、端口不通、TLS 配置不符
+UNIMPLEMENTED                                     方法名拼错，或客户端 proto 版本旧
+偶发 UNAVAILABLE                                  长连接被 LB 断开，需要 keepalive
+```
 
 ```python
 # 长连接过 LB 被静默断开时，开 keepalive

@@ -12,12 +12,13 @@
 
 GitOps 是「拉模型」：Git 是唯一事实来源，集群内 Agent 持续比对 Git 与集群实际状态并自动修复。CI 只需 Git 写权限，变更走 PR 审查，审计日志天然在 Git log 里。
 
-| 对比项 | 推模型 | 拉模型 |
-| :-- | :-- | :-- |
-| 触发 | CI 事件，推完即止 | 轮询 Git，持续协调 |
-| 凭据 | CI 持 kubeconfig | CI 只需 Git 写权限 |
-| 手动改动 | 不可见 | `selfHeal` 自动改回 |
-| 回滚 | 重跑流水线 | `git revert` / `argocd app rollback` |
+```
+对比项    推模型              拉模型
+触发      CI 事件，推完即止    轮询 Git，持续协调
+凭据      CI 持 kubeconfig   CI 只需 Git 写权限
+手动改动   不可见             selfHeal 自动改回
+回滚      重跑流水线          git revert / argocd app rollback
+```
 
 二、Application 与双状态
 
@@ -247,12 +248,13 @@ spec:
           image: registry.example.com/migrate:1.0
 ```
 
-| Hook | 用途 |
-| :-- | :-- |
-| `PreSync` | 数据库迁移、备份、生成配置 |
-| `Sync` | 与业务资源同批（不写 hook 的资源都在此阶段） |
-| `PostSync` | 冒烟测试、通知、刷新 CDN |
-| `SyncFail` | 失败时的清理与告警 |
+```
+Hook      用途
+PreSync   数据库迁移、备份、生成配置
+Sync      与业务资源同批（不写 hook 的资源都在此阶段）
+PostSync  冒烟测试、通知、刷新 CDN
+SyncFail  失败时的清理与告警
+```
 
 ------
 

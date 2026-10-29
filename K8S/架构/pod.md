@@ -17,28 +17,28 @@
 5.优雅终止：terminationGracePeriodSeconds（默认 30s）→ 收到 SIGTERM → 执行 preStop → 超时 SIGKILL。
 
 # Pod 生命周期
-Pod 状态	         含义	                 常见原因
+Pod 状态	         含义	                  常见原因
 Pending	          调度器还没找到节点	      资源不足 / 亲和性 / 污点 / PVC 未绑
-ContainerCreating	节点已选，正在拉镜像/挂卷	镜像拉取慢 / 卷挂载慢
-Running	          至少一个容器在跑	       正常
+ContainerCreating	节点已选，正在拉镜像/挂卷	 镜像拉取慢 / 卷挂载慢
+Running	          至少一个容器在跑	        正常
 Succeeded        	所有容器正常退出（Job）  	正常
 Failed	          至少一个容器异常退出	    应用报错
-CrashLoopBackOff	容器反复崩溃重启	       前台进程退出 / liveness 探针太激进 /...
+CrashLoopBackOff	容器反复崩溃重启	        前台进程退出 / liveness 探针太激进 /...
 ImagePullBackOff	镜像拉不下来	           tag 错 / 网络 / 架构
 Terminating	      正在删除	              正常删除流程      
 
 # 探针
-探针	           作用	                  失败后果	                            典型用途
+探针	            作用	                失败后果	                             典型用途
 startupProbe	   判断容器是否启动完成	    超过阈值后重启容器	                     慢启动应用
-livenessProbe	   判断容器是否还活着	     连续失败达到failureThreshold后重启容器  进程假死、死锁
-readinessProbe	 判断容器是否准备好接流量	 从ServiceEndpointSlice摘除，不重启	   依赖未就绪、临时不可用
+livenessProbe	   判断容器是否还活着	      连续失败达到failureThreshold后重启容器   进程假死、死锁
+readinessProbe	 判断容器是否准备好接流量	 从ServiceEndpointSlice摘除，不重启	     依赖未就绪、临时不可用
 
 # 多容器模式
 模式	           说明	                 典型用途
-Init Container	主容器启动前执行完退出 	等待依赖、初始化数据，拉配置
+Init Container	主容器启动前执行完退出 	  等待依赖、初始化数据，拉配置
 Sidecar	        辅助主容器	            日志、监控、代理
-Ambassador	    代理外部连接	         数据库代理、服务发现
-Adapter	        转换输出格式	         日志标准化、指标暴露，转成 Prometheus 格式
+Ambassador	    代理外部连接	          数据库代理、服务发现
+Adapter	        转换输出格式	          日志标准化、指标暴露，转成 Prometheus 格式
 ```
 
 ### Pod.yaml

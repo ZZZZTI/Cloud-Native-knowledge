@@ -1,17 +1,18 @@
 > Jenkins 是一个开源的持续集成与持续交付（CI/CD）自动化服务器，通过插件和流水线（Pipeline）实现代码构建、测试和部署的自动化。
 
+
 ------
 
 ### 配置文件
 
-| `.jenkins/`  | JENKINS_HOME 目录         |
-| ------------ | ------------------------- |
-| `jobs/`      | 所有 Job 的配置与构建记录 |
-| `workspace/` | 构建工作目录              |
-| `plugins/`   | 已安装插件                |
-| `secrets/`   | 初始密码等敏感信息        |
-| `logs/`      | 日志                      |
-| `config.xml` | 全局配置                  |
+| `.jenkins/` | JENKINS_HOME 目录 |
+|----|----|
+| `jobs/` | 所有 Job 的配置与构建记录 |
+| `workspace/` | 构建工作目录 |
+| `plugins/` | 已安装插件 |
+| `secrets/` | 初始密码等敏感信息 |
+| `logs/` | 日志 |
+| `config.xml` | 全局配置 |
 
 ### item
 
@@ -339,4 +340,5 @@ ssh jenkins restart-from-stage <Job名称> <构建号> <阶段名>  # 从某个�
 # ===== 邮件 =====
 ssh jenkins mail < <邮件内容.txt>                         # 从标准输入读取内容并作为邮件发送
 ```
+
 
