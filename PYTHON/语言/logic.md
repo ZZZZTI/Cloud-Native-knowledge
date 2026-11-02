@@ -1,10 +1,89 @@
-> 第 3 步：让程序会「做判断」和「重复做事」。运维脚本的骨架基本就是这两件事。
->
-> if / elif / else，比较与逻辑，for 循环，while 循环，break / continue，遍历技巧
+> 运算符，print 与 input，if / elif / else，比较与逻辑
+> 
+>for 循环，while 循环，break / continue，遍历技巧
+------
+
+## 1. 运算符
+
+```python
+# 比较运算，结果是布尔值
+1 == 1      # True   等于（两个等号！）
+1 != 2      # True   不等于
+3 > 2       # True
+3 >= 3      # True
+"a" < "b"   # True   字符串按字典序比较
+
+# 逻辑运算
+True and False   # False   两个都真才真
+True or False    # True    一个真就真
+not True         # False   取反
+
+# 短路求值：and/or 左边能确定结果时，右边不会执行
+# 利用这个特性写默认值
+name = user_input or "unknown"    # 空字符串 → "unknown"
+
+# 成员运算
+"8080" in "http://x:8080"     # True
+"web" in ["web-1", "web-2"]   # False（要完全相等，不是子串）
+
+# 身份运算
+a = [1, 2]
+b = [1, 2]
+a == b      # True    值相等
+a is b      # False   不是同一个对象
+```
+
+`==` 比的是**值**，`is` 比的是**是不是同一个对象**。只有判断 `None`/`True`/`False` 时才用 `is`。
 
 ------
 
-## 1. if：做判断
+## 2. 输出：print
+
+```python
+print("hello")
+print("a", "b", "c")              # a b c（默认用空格分隔）
+print("a", "b", sep="-")          # a-b（自定义分隔符）
+print("end 不换行", end="")        # 默认结尾换行，改成空字符串就不换行
+print()
+
+# f-string：最推荐的格式化方式（Python 3.6+）
+name, port = "api", 8080
+print(f"服务 {name} 监听 {port}")
+print(f"耗时 {1.23456:.2f} 秒")        # 保留两位小数
+print(f"编号 {7:03d}")                 # 补零成 007
+print(f"{'左对齐':<10}|")              # 左对齐占 10 位
+print(f"{'右对齐':>10}|")              # 右对齐占 10 位
+print(f"{0.856:.1%}")                  # 百分比 85.6%
+
+# 不推荐：+ 拼接（类型不匹配就报错，且慢）
+print("服务 " + name + " 监听 " + str(port))   # 必须手动 str()
+
+# 调试用：直接把变量名和值都打出来
+x = 42
+print(f"{x=}")       # x=42   ← 这是最快的调试打印
+```
+
+------
+
+## 3. 输入：input
+
+```python
+# input() 永远返回字符串，并且会阻塞等待回车
+name = input("请输入节点名：")
+
+# 需要数字就转换，并且要防用户乱输
+raw = input("请输入端口：")
+try:
+    port = int(raw)
+except ValueError:
+    print("端口必须是数字")
+    port = 8080
+```
+
+**运维脚本里尽量少用 `input()`**：脚本通常无人值守，交互式输入会挂住。用命令行参数（见 `12-标准库运维常用.md` 的 argparse）代替。
+
+
+## 4. if：做判断
 
 ```python
 status = "Running"
@@ -35,7 +114,7 @@ else:
 
 ------
 
-## 2. 条件怎么写
+## 5. 条件怎么写
 
 ```python
 # 比较
@@ -65,7 +144,7 @@ if not pods:        # 空才进
 
 ------
 
-## 3. for：遍历
+## 6. for：遍历
 
 ```python
 # 遍历列表
@@ -126,7 +205,7 @@ range(5, 0, -1)   # 5,4,3,2,1      倒序
 
 ------
 
-## 4. while：条件成立就一直转
+## 7. while：条件成立就一直转
 
 ```python
 # 典型：重试直到成功
@@ -155,7 +234,7 @@ while True:
 
 ------
 
-## 5. break / continue / else
+## 8. break / continue / else
 
 ```python
 # break：立刻跳出整个循环
@@ -182,7 +261,7 @@ else:
 
 ------
 
-## 6. 嵌套循环
+## 9. 嵌套循环
 
 ```python
 nodes = ["k8s-01", "k8s-02"]
@@ -202,7 +281,7 @@ def find(d, target):
 
 ------
 
-## 7. 实战：批量判断 Pod 状态
+## 实战：批量判断 Pod 状态
 
 ```python
 pods = [
@@ -239,40 +318,3 @@ for level, name, status, restarts in problems:
 if problems:
     exit(1)          # 有异常，退出码非 0，让监控能感知
 ```
-
-------
-
-## 8. 本章检查清单
-
-```python
-# 1. 输出 1~100 里能被 3 整除的数
-for i in range(1, 101):
-    if i % 3 == 0:
-        print(i)
-
-# 2. 统计列表里 "error" 出现的次数（忽略大小写）
-lines = ["ERROR a", "ok", "error b"]
-count = sum(1 for l in lines if "error" in l.lower())
-print(count)     # 2
-
-# 3. 找出第一个重启次数 > 10 的 Pod
-for pod in pods:
-    if pod["restarts"] > 10:
-        print("异常 Pod:", pod["name"])
-        break
-else:
-    print("全部正常")
-```
-
-------
-
-## 核心概念
-
-1. **冒号 + 4 空格缩进**，两者缺一个就 `IndentationError`。
-2. **`elif` 从上往下匹配，命中即停**，范围判断要从窄到宽排。
-3. **要下标用 `enumerate`**，不要 `range(len(...))`。
-4. **同时遍历多个列表用 `zip`**，且它以最短的为准。
-5. **`range(n)` 不含 n**，这是最常见的 off-by-one 来源。
-6. **`while` 必须有明确的退出条件**，否则死循环。
-7. **`for-else` 表示「没被 break 打断」**，适合查找场景。
-8. **嵌套循环要两层一起退出时，封装成函数用 `return`**。

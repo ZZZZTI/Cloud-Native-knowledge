@@ -3,25 +3,7 @@
 >
 > class，__init__，self，实例与类属性，继承，魔术方法，@property，dataclass，上下文管理器
 
-------
-
-## 1. 为什么运维需要类
-
-```python
-# 不用类：参数在函数之间传来传去，越传越多
-def list_pods(token, base_url, namespace, timeout): ...
-def get_logs(token, base_url, namespace, pod, timeout): ...
-# 每个函数都要重复传 token/base_url，漏一个就出错
-
-# 用类：把「共同的状态」收进对象里
-client = K8sClient(token=..., base_url=..., timeout=10)
-client.list_pods("prod")
-client.get_logs("prod", "web-1")
-```
-
-**判断标准**：如果一组函数总在传同样的几个参数，就该封成类。
-
------ 
+-----
 
 ## 2. 最小的类
 
@@ -296,32 +278,3 @@ print("总调用次数:", c.calls)
 ```
 
 这就是运维里类的典型用法：**把「连接、鉴权、超时、重试、统计」这些横切逻辑收进对象**，业务方法只关心「取什么数据」。
-
------ 
-
-## 10. 本章检查清单
-
-```python
-# 1. 写一个类，能统计自己创建了多少实例
-class Counter:
-    n = 0
-    def __init__(self):
-        Counter.n += 1
-
-# 2. 给类加 __repr__，print 时能看到字段
-# 3. 用 @dataclass 定义 Pod 结构
-# 4. 写一个 with 能用的计时器
-```
-
------ 
-
-## 核心概念
-
-1. **一组建函数总在传同样的参数 → 封成类**，这是运维用 OOP 的唯一判断标准。
-2. **`self` 是对象本身**，实例属性写在 `__init__` 里。
-3. **可变状态别放类属性**，会所有实例共享。
-4. **`__repr__` 最值得写**，调试时 `print(obj)` 直接看到内容。
-5. **`@dataclass` 省样板代码**，纯数据类优先用它。
-6. **`@property` 让计算属性像字段一样访问**，还能加赋值校验。
-7. **`__enter__`/`__exit__` 就是 `with` 的原理**，用完自动清理资源。
-8. **下划线开头表示内部方法**，不是语法强制，但是团队约定。

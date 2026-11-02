@@ -1,4 +1,4 @@
-> 第 2 步：字符串。运维处理的东西 90% 是文本——日志、配置、API 响应，所以这一章要写熟。
+> 字符串。运维处理的东西 90% 是文本——日志、配置、API 响应，所以这一章要写熟。
 >
 > 定义与切片，常用方法，格式化，编码，正则提取，日志解析实战
 
@@ -212,34 +212,3 @@ with Path("/var/log/nginx/access.log").open(encoding="utf-8", errors="replace") 
 print("状态码分布：", counter.most_common())
 print("5xx 最多的路径：", errors.most_common(5))
 ```
-
-------
-
-## 8. 本章检查清单
-
-```python
-s = "  web-1,web-2,,web-3  "
-# 期望：去掉首尾空白，按逗号切，去掉空项，得到 3 个 Pod 名
-pods = [p for p in s.strip().split(",") if p]
-print(pods)          # ['web-1', 'web-2', 'web-3']
-
-# 期望：把 "10.0.0.1:8080" 拆成 IP 和端口
-host, _, port = "10.0.0.1:8080".rpartition(":")
-print(host, port)
-
-# 期望：判断字符串是否以 .log 结尾且不含 backup
-name = "app-backup.log"
-print(name.endswith(".log") and "backup" not in name)
-```
-
-------
-
-## 核心概念
-
-1. **`strip()` 是读文件后的必备动作**，否则行尾 `\n` 会让比较永远失败。
-2. **`split()` 不传参按任意空白切**，能自动处理多个空格。
-3. **`join()` 比循环 `+=` 快得多**，拼接列表用 `"-".join(list)`。
-4. **f-string 是格式化首选**，支持精度、对齐、百分比。
-5. **打开文件永远显式 `encoding="utf-8"`**，脏数据加 `errors="replace"`。
-6. **正则先 `re.compile`**，循环里复用；只做字段提取，别解析结构。
-7. **`rpartition`/`rsplit` 从右往左**，处理 `host:port` 这类结构很方便。

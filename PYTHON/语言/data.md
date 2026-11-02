@@ -1,10 +1,132 @@
-> 第 4 步：容器类型。运维数据几乎全是「一堆东西」——Pod 列表、节点字典、标签集合。
->
-> 列表，字典，集合，元组，推导式，排序，浅拷贝陷阱，嵌套结构
+> 变量，数字，字符串，布尔值，None，类型转换，
+> 
+> 容器类型：列表，字典，集合，元组，推导式，排序，浅拷贝陷阱，嵌套结构
 
 ------
 
-## 1. 列表 list：有序、可变
+## 1. 变量：给值起个名字
+
+```python
+# Python 不需要提前声明类型，赋值即创建
+host = "10.0.0.1"      # 字符串
+port = 6443            # 整数
+ratio = 0.75           # 浮点数
+ready = True           # 布尔值
+
+# 同一行给多个变量赋值
+x, y = 1, 2
+
+# 交换两个变量（不用中间变量）
+x, y = y, x
+
+# 变量名规则：字母/数字/下划线，不能数字开头，区分大小写
+# 推荐小写 + 下划线（snake_case）：pod_count、node_name、is_healthy
+```
+
+**没有「声明」这一步，但有「赋值前不能使用」**：
+
+```python
+print(abc)      # ❌ NameError: name 'abc' is not defined
+abc = 1
+print(abc)      # ✅ 1
+```
+
+------
+
+## 2. 数字
+
+```python
+10          # 整数 int
+3.14        # 浮点数 float
+1_000_000   # 下划线只是方便阅读，等于 1000000
+
+# 四则运算
+7 + 3       # 10
+7 - 3       # 4
+7 * 3       # 21
+7 / 3       # 2.3333...   ← 注意：/ 永远得到浮点数
+7 // 3      # 2           ← 整除，向下取整
+7 % 3       # 1           ← 取余（判断奇偶、分片常用）
+7 ** 3      # 343         ← 幂
+
+# 运算优先级：** > * / // % > + -
+(1 + 2) * 3     # 用括号明确优先级，别靠记忆
+
+# 浮点数精度陷阱
+0.1 + 0.2 == 0.3          # False！
+abs(0.1 + 0.2 - 0.3) < 1e-9   # ✅ 比较浮点用误差范围
+```
+
+------
+
+## 3. 布尔值与 None
+
+```python
+True / False        # 只有首字母大写，true/false 是错的
+
+# 各种「假值」（在 if 判断里等价于 False）
+bool(0)         # False
+bool("")        # False   空字符串
+bool([])        # False   空列表
+bool({})        # False   空字典
+bool(set())     # False   空集合
+bool(None)      # False
+
+# 其余都是真值
+bool("0")       # True   ← 注意："0" 是非空字符串，为真
+bool([0])       # True   ← 非空列表
+
+# None：表示「什么都没有」，不是 0、不是 ""、不是 False
+result = None
+if result is None:        # ✅ 判断 None 永远用 is
+    print("还没有结果")
+
+if result == None:        # ❌ 不要这样写
+    pass
+```
+
+------
+
+## 4. 类型转换
+
+```python
+int("123")        # 123        字符串 → 整数
+int("abc")        # ❌ ValueError，转换失败会抛异常
+float("3.14")     # 3.14
+str(123)          # "123"      任何东西 → 字符串
+bool(1)           # True
+
+# 输入的数字一定要转换！input() 拿到的永远是字符串
+age = input("年龄：")      # 用户输入 25，age 是 "25" 不是 25
+age = int(input("年龄：")) # ✅ 转换成整数
+
+# 安全转换：不确定内容是否合法时，用 try 兜底
+def to_int(s, default=0):
+    try:
+        return int(s)
+    except (ValueError, TypeError):
+        return default
+
+to_int("8080")   # 8080
+to_int("abc")    # 0
+```
+
+------
+
+## 5. 查看类型
+
+```python
+type(123)            # <class 'int'>
+type("abc")          # <class 'str'>
+isinstance(123, int)          # True
+isinstance("123", (int, str)) # True   可以传元组，任一匹配即可
+isinstance(True, int)         # True   ← 坑：布尔是整数的子类
+```
+
+判断类型优先用 `isinstance()`，它支持继承关系；`type(x) == int` 太死板。
+
+
+## 6. 列表 list：有序、可变
 
 ```python
 pods = ["web-1", "web-2"]
@@ -44,7 +166,7 @@ pods[::-1]                      # 切片反转（生成新列表）
 
 ----- 
 
-## 2. 字典 dict：键值对，运维最常用
+## 7. 字典 dict：键值对，运维最常用
 
 **JSON 和 YAML 解析出来就是字典**，所以这个要写熟。
 
@@ -105,7 +227,7 @@ a.update(b)       # 原地合并（会覆盖同名 key）
 
 ----- 
 
-## 3. 集合 set：去重 + 交并差
+## 8. 集合 set：去重 + 交并差
 
 ```python
 old = {"web-1", "web-2", "web-3"}
@@ -136,7 +258,7 @@ s.discard(99)                   # 不存在也不报错（remove 会 KeyError）
 
 ----- 
 
-## 4. 元组 tuple：不可变
+## 9. 元组 tuple：不可变
 
 ```python
 point = (10, 20)          # 括号可省略：point = 10, 20
@@ -158,7 +280,7 @@ name, port = get()        # 自动解包
 
 ----- 
 
-## 5. 推导式：一行生成列表/字典
+## 10. 推导式：一行生成列表/字典
 
 ```python
 pods = ["web-1", "web-2", "db-0"]
@@ -187,7 +309,7 @@ flat = [x for row in matrix for x in row]           # [1,2,3,4]
 
 ----- 
 
-## 6. 排序进阶
+## 11. 排序进阶
 
 ```python
 pods = [
@@ -213,7 +335,7 @@ sorted(pods, key=itemgetter("restarts"))
 
 ----- 
 
-## 7. 浅拷贝陷阱（一定要知道）
+## 12. 浅拷贝陷阱（一定要知道）
 
 ```python
 a = [1, 2, 3]
@@ -240,7 +362,7 @@ n = copy.deepcopy(m)
 
 ----- 
 
-## 8. 实战：处理集群状态数据
+## 实战：处理集群状态数据
 
 ```python
 # 典型的 API 返回结构（列表套字典）
@@ -276,37 +398,3 @@ new_names = {n["name"] for n in nodes}
 print("新增：", new_names - old_names)
 print("移除：", old_names - new_names)
 ```
-
------ 
-
-## 9. 本章检查清单
-
-```python
-# 1. 给列表去重并保持顺序
-data = ["a", "b", "a", "c"]
-list(dict.fromkeys(data))        # ['a','b','c']
-
-# 2. 统计每个元素出现次数
-from collections import Counter
-Counter(data)                    # Counter({'a': 2, 'b': 1, 'c': 1})
-
-# 3. 按值排序字典
-d = {"a": 3, "b": 1}
-sorted(d.items(), key=lambda kv: kv[1])   # [('b',1), ('a',3)]
-
-# 4. 安全取嵌套值
-resp = {}
-resp.get("data", {}).get("items", [])
-```
-
------ 
-
-## 核心概念
-
-1. **API/JSON 数据 = 列表套字典**，`items()` 遍历和链式 `.get()` 是最常用的两个动作。
-2. **`dict.get(key, default)` 优于 `d[key]`**，少一次 KeyError。
-3. **集合做去重和交并差**，但会打乱顺序；要保序用 `dict.fromkeys()`。
-4. **`sort()` 原地改、`sorted()` 返回新列表**，别搞混。
-5. **排序用 `key=`**，多级排序传元组。
-6. **`b = a` 是引用不是拷贝**，改一个两个都变；嵌套结构要 `deepcopy`。
-7. **推导式适合简单转换**，条件超过两三个就该拆成普通循环。
