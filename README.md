@@ -97,14 +97,10 @@ flowchart TB
     %% ================= 开发与运维端 =================
     subgraph DevZone [Mac 运维/开发端]
         direction LR
-        Mac[Mac 宿主机]:::dev
         Terminal[Terminal<br/>Ansible / tccli / Docker / kubectl]:::dev
         VSCode[VSCode<br/>Python / API调用 / 编写代码]:::dev
         Browser[浏览器<br/>HTTPS 访问]:::dev
-        
-        Mac --> Terminal
-        Mac --> VSCode
-        Mac --> Browser
+ 
     end
 
     %% ================= 安全防线 =================
