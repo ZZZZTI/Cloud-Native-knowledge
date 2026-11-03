@@ -9,56 +9,72 @@
 .
 ├── K8S
 │   ├── 架构
+│   │   ├── helm.md
 │   │   ├── pod.md
 │   │   ├── 存储.md
 │   │   ├── 安全.md
 │   │   ├── 网络.md
 │   │   ├── 调度.md
-│   │   ├── 包管理.md
+│   │   ├── 集群.md
 │   │   └── 控制器.md
 │   ├── ArgoCD.md
-│   ├── CKAS.md
+│   ├── CKA.md
+│   ├── Isito.md
 │   ├── docker.md
 │   └── 排障.md
 ├── LINUX
-│   ├── RHEL.md
-│   ├── SHELL.md
-│   ├── 内核.md
-│   ├── 安全.md
-│   ├── 文件.md
-│   ├── 文本.md
-│   ├── 目录.md
-│   ├── 管理.md
-│   ├── 网络.md
-│   └── 资源.md
+│   ├── SHELL
+│   │   ├── SHELL.md
+│   │   ├── 文件.md
+│   │   └── 文本.md
+│   ├── 本机
+│   │   ├── 内核.md
+│   │   ├── 安全.md
+│   │   ├── 目录.md
+│   │   ├── 管理.md
+│   │   ├── 网络.md
+│   │   ├── 资源.md
+│   │   └── 配置.md
+│   └── RHEL.md
 ├── PYTHON
-│   ├── 01-环境与运行.md
-│   ├── 02-语言基础.md
-│   ├── 03-字符串与正则.md
-│   ├── 04-控制流.md
-│   ├── 05-数据结构.md
-│   ├── 06-函数.md
-│   ├── 07-模块与包.md
-│   ├── 08-文件与数据格式.md
-│   ├── 09-异常与调试.md
-│   ├── 10-面向对象.md
-│   ├── 11-标准库运维常用.md
-│   ├── 12-并发编程.md
-│   ├── 13-网络与HTTP.md
-│   ├── 14-gRPC与云原生.md
-│   └── 15-可观测性与工程化.md
+│   ├── 库
+│   │   ├── 1-CLI.md
+│   │   ├── 1-日志.md
+│   │   ├── 1-系统.md
+│   │   ├── 2-HTTP.md
+│   │   ├── 2-并发.md
+│   │   ├── 2-配置文件.md
+│   │   ├── SSH.md
+│   │   ├── 云.md
+│   │   ├── 数据.md
+│   │   └── 测试.md
+│   ├── 语言
+│   │   ├── class.md
+│   │   ├── data.md
+│   │   ├── def.md
+│   │   ├── error.md
+│   │   ├── import.md
+│   │   ├── logic.md
+│   │   └── string.md
+│   ├── API.md
+│   ├── HTTP.md
+│   ├── 工程.md
+│   └── 并发.md
 ├── SEC
 │   ├── network
 │   │   └── network.md
 │   └── safety
+│       ├── CKS.md
 │       └── safety.md
 ├── SRE
 │   ├── CICD
 │   │   ├── Ansible.md
 │   │   ├── Jenkins.md
 │   │   ├── Terraform.md
-│   │   ├── gh.md
-│   │   └── git.md
+│   │   ├── git.md
+│   │   ├── gitlab.md
+│   │   ├── gitlabai大纲.md
+│   │   └── tccli.md
 │   └── SRE
 │       ├── Observe1.md
 │       ├── Observe2.md
