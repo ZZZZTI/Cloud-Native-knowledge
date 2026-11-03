@@ -82,128 +82,73 @@
 ### Technical architecture
 
 ```mermaid
-flowchart TB
-    %% 样式定义
-    classDef dev fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b;
-    classDef sec fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#b71c1c;
-    classDef net fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#4a148c;
-    classDef ctrl fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px,color:#1a237e;
-    classDef k8s fill:#e0f2f1,stroke:#00897b,stroke-width:2px,color:#004d40;
-    classDef data fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#e65100;
-    classDef obs fill:#fffde7,stroke:#fbc02d,stroke-width:2px,color:#f57f17;
-    classDef ext fill:#f5f5f5,stroke:#9e9e9e,stroke-width:2px,color:#424242;
-    classDef alert fill:#ffebee,stroke:#e53935,stroke-width:2px,color:#b71c1c,stroke-dasharray: 5 5;
-
-    %% ================= 开发与运维端 =================
-    subgraph DevZone [Mac 运维/开发端]
-        direction LR
-        Terminal[Terminal<br/>Ansible / tccli / Docker / kubectl]:::dev
-        VSCode[VSCode<br/>Python / API调用 / 编写代码]:::dev
-        Browser[浏览器<br/>HTTPS 访问]:::dev
- 
-    end
-
-    %% ================= 安全防线 =================
-    subgraph SecZone [安全接入层]
-        VPN[VPN / 内网穿透]:::sec
-        Bastion[堡垒机 JumpServer<br/>SSH 审计]:::sec
-    end
-    
-    Terminal -->|安全隧道| VPN
-    VPN --> Bastion
-
-    %% ================= 外部服务 =================
-    subgraph ExtZone [外部生态 / 内部平台]
-        GitHub[GitHub]:::ext
-        DSH[内部 Dashboard / 工具]:::ext
-        AlertMsg[钉钉/飞书/邮件告警]:::alert
-    end
-
-    Browser -->|拉取代码/开源| GitHub
-    Browser -->|访问平台| DSH
-
-    %% ================= 腾讯云 VPC =================
-    subgraph TencentCloud [腾讯云 VPC 生产环境]
+graph TD
+    %% mac 块
+    subgraph Mac["MAC 运维端"]
         direction TB
-        
-        %% 网络入口
-        subgraph Network [网络与流量入口]
-            CLB[腾讯云 CLB 负载均衡]:::net
-            Nginx[Nginx Ingress Controller]:::net
-            CLB --> Nginx
-        end
-        
-        Browser -->|业务访问| CLB
-
-        %% 管控与 CI/CD 区域
-        subgraph ControlPlane [管控与 CI/CD 流水线]
+        subgraph Mac_Apps[" "]
             direction LR
-            GitLab[GitLab CE<br/>代码托管]:::ctrl
-            Jenkins[Jenkins<br/>CI 流水线]:::ctrl
-            Harbor[Harbor<br/>私有镜像仓库]:::ctrl
-            Terraform[Terraform<br/>基础设施编排]:::ctrl
-            
-            GitLab -->|Webhook 触发| Jenkins
-            Jenkins -->|Push 镜像| Harbor
-        end
-
-        VSCode -->|Git Push| GitLab
-        Bastion -->|运维管理| ControlPlane
-
-        %% K8s 生产集群
-        subgraph K8sCluster [K8s 生产集群]
-            direction TB
-            K8sMaster[K8s Master 高可用]:::k8s
-            K8sWorker[K8s Worker 节点]:::k8s
-            
-            subgraph Pods [业务容器 Pods]
-                Backend[后端业务服务]:::k8s
-                Promtail[Promtail<br/>日志采集]:::obs
-                OTel[OTel Collector<br/>链路采集]:::obs
+            subgraph S[" "]
+                direction TB
+                S1["Safrai (https)"] --- S2["deepseek HARNESS"]
+                S1["Safrai (https)"] --- S3["Grafana<br>Gitlab<br>Jenkins<br>腾讯云平台"]
             end
             
-            K8sMaster --> K8sWorker
-            K8sWorker --> Pods
-        end
-
-        Jenkins -->|CD 部署 kubectl apply| K8sCluster
-        Harbor -.->|Pull Image| Pods
-        Nginx -->|路由转发| Backend
-
-        %% 数据层 (独立高可用)
-        subgraph DataLayer [数据与中间件层]
-            MySQL[(MySQL 主从集群)]:::data
-            Redis[(Redis 哨兵/集群)]:::data
-            MQ[(Kafka / 消息队列)]:::data
-        end
-
-        Backend -->|读写| MySQL
-        Backend -->|缓存| Redis
-        Backend -->|消息| MQ
-
-        %% 可观测性平台
-        subgraph Observability [可观测性平台]
-            Prometheus[Prometheus<br/>指标监控]:::obs
-            Alertmanager[Alertmanager<br/>告警路由]:::obs
-            Loki[Loki<br/>日志聚合]:::obs
-            Tempo[Tempo<br/>链路追踪]:::obs
-            Grafana[Grafana<br/>可视化面板]:::obs
+            subgraph T[" "]
+                direction TB
+                T1["Terminal"] --- T2["Ansible<br>Terraform CLI<br>kubectl<br>TCCLI"]
+                T1["Terminal"] --- T3["SSH<br>JumpServer<br>shell"]
+            end
             
-            Prometheus -->|触发告警| Alertmanager
-            Alertmanager -->|发送通知| AlertMsg
+            subgraph V[" "]
+                direction TB
+                V1["VS code"] --- V2["编写API脚本<br>核心库"]
+                V1["VS code"] --- V3["本地测试<br>docker<br>python3 pip"]
+            end
             
-            Grafana -->|查询| Prometheus
-            Grafana -->|查询| Loki
-            Grafana -->|查询| Tempo
+            S ~~~ T ~~~ V
         end
-        
-        %% 数据流向监控平台
-        Prometheus -.->|拉取指标| K8sCluster
-        Promtail -.->|推送日志| Loki
-        OTel -.->|推送链路| Tempo
-        
-        Browser -->|HTTPS 查看报表| Grafana
     end
+
+    %% mac块指向vpc块
+    Mac ==> VPC["mac块 -> vpc块"]
+
+    %% vpc 块
+    subgraph VPC["VPC 生产端"]
+        direction TB
+        
+        subgraph MGMT["管理层"]
+          direction TB
+            M1["linux资源"]
+            M2["可观测性"]
+            M3["网络和安全"]
+            M1 ~~~ M2 ~~~ M3
+        end
+
+          subgraph SVC["服务层"]
+            direction TB
+            S5["CI/CD"]
+            S6["K8S"]
+            BE["后端应用"]
+            DB["mysql<br/>redis"]
+            NG["Nginx"]
+
+            S5 --> BE
+            S6 --> BE
+            BE --> DB
+            BE --> NG
+         end
+    end
+
+
+
+    %% 样式定义
+    classDef default fill:#2d2d2d,stroke:#888,color:#fff;
+    classDef group fill:#1e1e1e,stroke:#555,stroke-width:2px,color:#fff;
+    classDef invisible fill:none,stroke:none;
+
+    class Mac,VPC group;
+    class Mac_Apps,S,T,V,Mgmt invisible;
 ```
 
 ### My projects:
