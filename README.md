@@ -3,7 +3,7 @@
 > I'm still learning......
 >
 
-### Knowledge structure
+## Knowledge structure
 
 ```css
 .
@@ -95,7 +95,7 @@
 └── README.md
 ```
 
-### Technical architecture
+## Technical architecture
 
 ```mermaid
 graph TD
@@ -112,7 +112,7 @@ graph TD
             
             subgraph T[" "]
                 direction TB
-                T1["Terminal"] --- T2["Ansible<br>Terraform CLI<br>kubectl<br>TCCLI"]
+                T1["Terminal"] --- T2["Ansible<br>Terraform cli<br>kubectl cli<br>TCCLI"]
                 T1["Terminal"] --- T3["SSH<br>JumpServer<br>shell"]
             end
             
@@ -167,9 +167,9 @@ graph TD
     class Mac_Apps,S,T,V,Mgmt invisible;
 ```
 
-### My projects:
+## two big project:（两个大项目要有变化，整合不同技术栈，做一些创新）
 
-基于 IaC 与 GitOps 的多环境交付流水线建设（自动化、工具链整合）：
+基于 IaC 与 GitOps 的多环境云原生交付平台（自动化、工具链整合）：   
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
@@ -178,8 +178,21 @@ https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
 
+## some small projects:
 
+服务器变慢的全链路排查
 
+MySQL 备份恢复演练
+
+Helm chart 化三层应用
+
+Ansible 标准化服务器初始化
+
+Trivy 镜像漏洞扫描 + 修复闭环
+
+......
+
+https://github.com/ZZZZTI/Cloud-Native-knowledge.git
 
 
 
