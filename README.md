@@ -1,4 +1,4 @@
-# Welcome to ZTI's CloudNative knowledge repository
+# Welcome to ZTI's Cloud-Native knowledge repository
 
 > I'm still learning......
 >
@@ -156,8 +156,6 @@ graph TD
          end
     end
 
-
-
     %% 样式定义
     classDef default fill:#2d2d2d,stroke:#888,color:#fff;
     classDef group fill:#1e1e1e,stroke:#555,stroke-width:2px,color:#fff;
@@ -193,6 +191,3 @@ Trivy 镜像漏洞扫描 + 修复闭环
 ......
 
 https://github.com/ZZZZTI/Cloud-Native-knowledge.git
-
-
-

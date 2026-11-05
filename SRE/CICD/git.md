@@ -3,6 +3,37 @@
 
 ------
 
+### init 仓库
+```bash
+
+git --version
+git config --global user.name "你的名字"
+git config --global user.email "你的邮箱@example.com"
+
+
+# ---------- 在 GitHub 网页上创建空仓库 ----------
+# 1. 点击右上角 "+" -> "New repository"
+# 2. 填写 Repository name，选择 Public 或 Private
+# 3. 不要勾选 README、.gitignore、license，创建完全空仓库
+# 4. 复制仓库 URL，https://github.com/your-username/your-repo.git
+
+
+# ---------- 进入本地项目目录并初始化 ----------
+cd /path/to/your-project
+git init [-b main]
+git remote add origin https://github.com/your-username/your-repo.git
+
+# 创建首次提交
+git add .
+git commit -m "Initial commit"
+git push -u origin main
+
+# 后续日常更新流程
+git add .
+git commit -m "描述你的更改"
+git push
+```
+
 ### 配置和查看
 
 ```shell

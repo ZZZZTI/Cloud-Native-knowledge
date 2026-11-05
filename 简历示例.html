@@ -1,0 +1,91 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>简历示例</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5px; line-height: 1.55; color: #222;
+    max-width: 820px; margin: 0 auto; padding: 10px;
+  }
+  h1 { font-size: 20px; margin: 0 0 2px; letter-spacing: 2px; }
+  .subtitle { font-size: 11px; color: #555; margin-bottom: 6px; }
+  .contact { font-size: 10px; color: #444; margin-bottom: 10px; }
+  .contact span { margin-right: 12px; }
+  h2 {
+    font-size: 12px; margin: 12px 0 6px; padding-bottom: 3px;
+    border-bottom: 1.5px solid #2c5aa0; color: #2c5aa0; letter-spacing: 1px;
+  }
+  h3 { font-size: 11px; margin: 8px 0 3px; }
+  .row { display: flex; justify-content: space-between; font-weight: bold; }
+  .row .right { font-weight: normal; color: #666; font-size: 10px; }
+  ul { margin: 3px 0 6px; padding-left: 16px; }
+  li { margin-bottom: 2.5px; }
+  .tag { display: inline-block; background: #eef3fa; color: #2c5aa0;
+         border-radius: 3px; padding: 0 5px; margin: 1px 3px 1px 0; font-size: 9.5px; }
+  .skill-line { margin-bottom: 3px; }
+  .skill-line b { color: #2c5aa0; }
+  .muted { color: #666; }
+  .result { color: #1a7f37; }
+</style>
+</head>
+<body>
+
+<h1>黄梓键</h1>
+<div class="subtitle">求职意向：云计算运维工程师 / SRE 工程师｜期望城市：深圳</div>
+<div class="contact">
+  <span>📱 19375928071</span>
+  <span>🔗 https://github.com/ZZZZTI</span>
+</div>
+
+<h2>技术栈概述</h2>
+<div class="skill-line"><b>操作系统：</b><span class="tag">Linux (CentOS/Ubuntu)</span><span class="tag">内核参数调优</span><span class="tag">systemd</span><span class="tag">性能分析 (top/iostat/vmstat/perf/eBPF)</span></div>
+<div class="skill-line"><b>网络：</b><span class="tag">TCP/IP</span><span class="tag">HTTP/HTTPS</span><span class="tag">DNS</span><span class="tag">Nginx</span><span class="tag">HAProxy</span><span class="tag">LVS</span><span class="tag">tcpdump/Wireshark</span></div>
+<div class="skill-line"><b>容器与编排：</b><span class="tag">Docker</span><span class="tag">Kubernetes（熟练）</span><span class="tag">Helm</span><span class="tag">Operator 开发</span><span class="tag">Calico/Cilium</span><span class="tag">Karmada 多集群</span></div>
+<div class="skill-line"><b>云平台：</b><span class="tag">阿里云 (ECS/SLB/VPC/RDS/ACK)</span><span class="tag">腾讯云</span><span class="tag">AWS (EC2/S3/IAM)</span></div>
+<div class="skill-line"><b>可观测性：</b><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">Alertmanager</span><span class="tag">VictoriaMetrics</span><span class="tag">ELK/Loki</span><span class="tag">SkyWalking/Jaeger</span><span class="tag">OpenTelemetry</span></div>
+<div class="skill-line"><b>CI/CD 与 IaC：</b><span class="tag">GitLab CI</span><span class="tag">Jenkins</span><span class="tag">ArgoCD (GitOps)</span><span class="tag">Ansible</span><span class="tag">Terraform</span></div>
+<div class="skill-line"><b>编程与中间件：</b><span class="tag">Python（熟练）</span><span class="tag">Shell</span><span class="tag">Go（熟悉）</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">Kafka</span><span class="tag">RabbitMQ</span></div>
+
+<h2>项目经历</h2>
+
+<h3>项目一：Kubernetes 多集群容器化平台建设与发布体系改造</h3>
+<div class="muted" style="font-size:10px">技术栈：Kubernetes · Docker · Helm · ArgoCD · GitLab CI · Karmada · Calico · Terraform</div>
+<ul>
+  <li><b>背景：</b>业务原采用虚拟机 + 手工部署，单服务发布需 30 分钟且易出错，资源利用率仅 15%，缺乏多环境隔离与灰度能力。</li>
+  <li><b>容器化改造：</b>制定统一镜像规范，优化 Dockerfile（多阶段构建 + 精简基础镜像），业务镜像体积由 1.2GB 降至 210MB，拉取耗时下降 70%。</li>
+  <li><b>集群建设：</b>使用 kubeadm + Ansible 搭建生产/预发/测试三套高可用集群，配置 Calico 网络、CSI 存储与节点亲和/污点策略；用 Terraform 管理云上 VPC、SLB、节点池等资源，实现环境可复制。</li>
+  <li><b>发布体系：</b>用 Helm Chart 统一 80+ 服务的部署模板，接入 GitLab CI 完成构建-扫描-推送，通过 ArgoCD 实现 GitOps 自动同步与一键回滚；结合 HPA + Cluster Autoscaler 实现弹性伸缩。</li>
+  <li><b>多集群治理：</b>引入 Karmada 管理多地集群，实现统一调度与故障转移，核心服务跨可用区部署。</li>
+  <li><b>成果：</b><span class="result">单服务发布耗时由 30min 降至 5min，发布失败率由 12% 降至 1.5%；集群 CPU 平均利用率由 15% 提升至 45%，年度云成本节省约 30%；支撑大促期间 3 倍流量峰值零故障。</span></li>
+</ul>
+
+<h3>项目二：全链路可观测性与 SLO 告警治理体系</h3>
+<div class="muted" style="font-size:10px">技术栈：Prometheus · VictoriaMetrics · Grafana · Alertmanager · Loki · OpenTelemetry · Jaeger · Python</div>
+<ul>
+  <li><b>背景：</b>故障主要靠用户投诉发现，平均发现时长 25min；告警日均 800+ 条且 70% 为噪声，值班人员严重告警疲劳。</li>
+  <li><b>指标监控：</b>基于 Prometheus + VictoriaMetrics 构建指标采集与长期存储，覆盖主机、容器、中间件与业务自定义指标；为业务接入 RED/ 黄金指标看板，Grafana 统一 30+ 仪表盘。</li>
+  <li><b>日志与链路：</b>部署 Loki + Promtail 做日志采集（替代原 ELK 高成本方案，存储成本降 60%），接入 OpenTelemetry + Jaeger 实现跨服务链路追踪，日志与 TraceID 双向关联。</li>
+  <li><b>SLO 体系：</b>与业务方共同定义核心接口 SLI（可用性、P99 延迟、错误率）与 SLO 目标，引入错误预算燃尽率（Burn Rate）多窗口告警，替代原粗暴阈值告警。</li>
+  <li><b>告警治理：</b>用 Python 编写告警收敛与去重服务，按服务维度聚合、抑制上下游级联告警，并接入企业微信/电话分级通知。</li>
+  <li><b>应急体系：</b>梳理 on-call 轮值与升级机制，编写 30+ 篇 runbook，沉淀故障复盘（Postmortem）模板；搭建混沌工程演练（Chaos Mesh）定期注入 Pod 故障、网络延迟验证系统韧性。</li>
+  <li><b>成果：</b><span class="result">告警量由日均 800+ 降至 220 条，噪声告警下降 72%；MTTD 由 25min 降至 3min，MTTR 由 32min 降至 8min；核心服务可用性从 99.9% 提升至 99.95%，半年内未发生 P0 级故障。</span></li>
+</ul>
+
+<h2>教育背景</h2>
+<div class="row"><span>广东医科大学 ｜ 数据科学与大数据技术 ｜ 本科</span><span class="right">2024.09 - 2028.06</span></div>
+
+<h2>证书与其它</h2>
+<ul>
+  <li>CKA（Certified Kubernetes Administrator）、阿里云 ACP 云计算工程师</li>
+  <li>GitHub 开源：K8s 集群巡检脚本、Prometheus 告警规则模板仓库（star 200+）</li>
+  <li>英语 CET-6，可无障碍阅读英文官方文档</li>
+</ul>
+
+</body>
+</html>

@@ -5,7 +5,14 @@
 ### 概念
 
 ```Shell
-安全基础包括 TCP/IP、HTTP/TLS、Linux 权限与隔离、密码学/PKI、OAuth2/OIDC/JWT 和 OWASP Top 10，用于理解通信、认证与 Web 风险；容器/K8s 安全围绕 Docker 和 Kubernetes 的 RBAC、NetworkPolicy、PSA、审计及 CKS，配合 Trivy、kube-bench、kube-hunter 做镜像扫描、基线核查和攻击面发现；供应链/策略即代码用 SBOM、Cosign/Sigstore、OPA/Gatekeeper、Kyverno、Checkov、Semgrep 保障镜像、依赖和 IaC 的可信与合规；运行时/可观测通过 Falco、Tetragon、Prometheus/Loki、SIEM 检测异常行为与安全事件；网络零信任与密钥管理借助 Cilium/Calico、Istio/Linkerd mTLS、SPIFFE/SPIRE、Vault 实现服务身份、加密通信和密钥保护；云平台安全覆盖 AWS/Azure/GCP 的 IAM、VPC、KMS、CloudTrail/GuardDuty 及 CSPM/CWPP/CIEM，用于云配置、工作负载和权限风险治理；DevSecOps 把 SAST/DAST/SCA 和 CI/CD 安全门禁、GitOps 安全嵌入研发流程；攻防靶场与认证则用 Kali/Burp、Kubernetes Goat、CloudGoat、MITRE ATT&CK 以及 CKS、云安全认证、OSCP 来验证实战能力。
+安全基础包括 TCP/IP、HTTP/TLS、Linux 权限与隔离、密码学/PKI、OAuth2/OIDC/JWT 和 OWASP Top 10，用于理解通信、认证与 Web 风险
+容器/K8s 安全围绕 Docker 和 Kubernetes 的 RBAC、NetworkPolicy、PSA、审计及 CKS，配合 Trivy、kube-bench、kube-hunter 做镜像扫描、基线核查和攻击面发现
+供应链/策略即代码用 SBOM、Cosign/Sigstore、OPA/Gatekeeper、Kyverno、Checkov、Semgrep 保障镜像、依赖和 IaC 的可信与合规
+运行时/可观测通过 Falco、Tetragon、Prometheus/Loki、SIEM 检测异常行为与安全事件
+网络零信任与密钥管理借助 Cilium/Calico、Istio/Linkerd mTLS、SPIFFE/SPIRE、Vault 实现服务身份、加密通信和密钥保护
+云平台安全覆盖 AWS/Azure/GCP 的 IAM、VPC、KMS、CloudTrail/GuardDuty 及 CSPM/CWPP/CIEM，用于云配置、工作负载和权限风险治理
+DevSecOps 把 SAST/DAST/SCA 和 CI/CD 安全门禁、GitOps 安全嵌入研发流程
+攻防靶场与认证则用 Kali/Burp、Kubernetes Goat、CloudGoat、MITRE ATT&CK 以及 CKS、云安全认证、OSCP 来验证实战能力。
 ```
 
 ```
