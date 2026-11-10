@@ -35,7 +35,7 @@ docker run [选项] <镜像名>    # 用镜像创建并启动容器
 docker system prune -a      # 清理所有停止的容器、未使用的网络和镜像
 ```
 
-### Dockerfile
+### Dockerfile （创建镜像）
 
 ```dockerfile
 vim Dockerfile
