@@ -176,5 +176,10 @@ data/
 application-prod.properties
 *.key
 *.pem
+
+# 忽略当前目录这一层级下所有文件
+# 保留.gitignore文件
+/*
+!.gitignore    
 ```
 
