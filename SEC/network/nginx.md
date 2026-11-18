@@ -25,7 +25,7 @@ sudo ln -s /etc/nginx/sites-available/newsite  /etc/nginx/sites-enabled/
 /etc/nginx/sites-available/         存放所有站点的配置
 /etc/nginx/sites-available/default  站点模版
 /etc/nginx/sites-enabled/           存放生效站点的软链接
-/var/www/mysite/index.html          网页配置文件
+/var/www/mysite/index.html          网页配置文件2
 ```
 
 ### nginx.conf文件配置结构

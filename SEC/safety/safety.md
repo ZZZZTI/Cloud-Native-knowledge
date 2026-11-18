@@ -24,6 +24,11 @@ Code       开发者                 代码审计、依赖扫描、SAST/DAST
 ```
 
 
-
+1. linux安全进阶
+2. k8s安全，CKS，Trivy
+3. Wireshark（抓包与协议分析）、tcpdump
+4. 边界与 Web 防护：WAF、nginx
+5. 主机与内网安全：Wazuh，jumpserver
+6. 安全合规，等保2.0
 
 
