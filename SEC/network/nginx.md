@@ -212,3 +212,75 @@ nginx -s reload 时，master 读新配置，启新 worker，通知旧 worker 停
 404 Not Found：路径不对，检查 root 或 alias、location 匹配。
 跨域失败：检查 add_header 配置和 OPTIONS 处理。
 ```
+
+## 场景 1：Nginx 502
+
+**现象**：浏览器返回 `502 Bad Gateway`，Nginx 错误日志出现 `connect() failed` 或 `upstream prematurely closed connection`。
+
+**可能原因**：
+
+- 上游服务未启动或端口不对
+- 上游进程崩溃、连接被 reset
+- 上游 DNS 解析失败
+- 请求头/响应头过大
+- SELinux 阻止 Nginx 访问上游
+
+**排查命令**：
+
+```bash
+tail -f /var/log/nginx/error.log  # 实时跟踪日志
+curl -vI http://127.0.0.1:8080/  # 带调试信息检查 HTTP 响应
+ss -lntp | grep ':8080'  # 查看 TCP 监听端口
+nginx -t  # 检查 Nginx 配置
+getenforce  # 查看 SELinux 模式
+ausearch -m avc -ts recent  # 查询审计日志
+```
+
+**处理命令**：
+
+```bash
+systemctl start <upstream>  # 启动服务
+# 修正 proxy_pass / upstream 地址
+nginx -t && nginx -s reload  # 检查配置并平滑重载
+```
+
+**注意**：502 是“网关收到无效响应”，不是“上游超时”；504 才是超时。
+
+------
+
+## 场景 2：Nginx 504
+
+**现象**：浏览器返回 `504 Gateway Timeout`，Nginx 日志出现 `upstream timed out`。
+
+**可能原因**：
+
+- 上游应用处理慢
+- 数据库慢查询、锁等待
+- `proxy_read_timeout` 太短
+- 网络丢包、上游负载高
+
+**排查命令**：
+
+```bash
+tail -f /var/log/nginx/error.log  # 实时跟踪日志
+curl -o /dev/null -s -w '%{http_code} %{time_total}\n' http://127.0.0.1:8080/slow  # 只输出状态码和耗时
+nginx -T | grep -E 'proxy_(connect|read|send)_timeout'  # 查看代理超时配置
+# 应用侧
+top  # 实时查看系统资源
+jstack <PID>  # 导出 Java 线程栈
+# MySQL
+SHOW PROCESSLIST;  # 执行 MySQL 查询
+```
+
+**处理命令**：
+
+```bash
+# 先优化应用和数据库，再考虑调整超时
+proxy_connect_timeout 5s;  # Nginx 代理超时配置
+proxy_read_timeout 60s;  # Nginx 代理超时配置
+proxy_send_timeout 60s;  # Nginx 代理超时配置
+
+nginx -t && nginx -s reload  # 检查配置并平滑重载
+```
+
+**注意**：单纯调大超时会把问题拖得更久，先确认上游为什么慢。
