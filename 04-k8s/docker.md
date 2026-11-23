@@ -5,7 +5,7 @@
 ### 容器和镜像管理
 
 ```bash
-docker ps -a/l/g                     # 查看运行的容器[已停止/最近创建/只显示容器ID]
+docker ps -a/l/q                     # 查看运行的容器[已停止/最近创建/只显示容器ID]
 docker stop <容器ID>                  # 停止容器
 docker start/restart <容器ID>         # 开启/重启容器
 docker kill <容器ID>                  # 强制停止容器
@@ -26,7 +26,7 @@ docker build -t <镜像名> .   # 构建镜像，. 表示当前目录
 
 docker run [选项] <镜像名>    # 用镜像创建并启动容器
 -d   # 后台运行
--rm  # 退出自动删除
+--rm  # 退出自动删除
 -p <主机端口>:<容器端口>
 --name <容器起名>
 --network host/none/container:web # 通过网络来运行
@@ -63,8 +63,7 @@ docker-compose stop            # 停止服务（保留容器）
 docker-compose down            # 停止并删除所有容器、网络（保留卷）
 docker-compose down -v         # 停止并删除容器、网络、卷
 
-vim docker-compose.yml
-
+# docker-compose.yml
 version: '3.8'  # Compose 文件版本
 services:       # 定义服务
     web:        # 容器一（网络服务）
