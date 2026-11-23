@@ -1,5 +1,5 @@
 > shell脚本语法
->
+> 环境与作业控制
 ------
 
 ### 脚本头部模版
@@ -57,7 +57,7 @@ read -n 1             # 输入限字数
 echo -n "..."         # 不换行输出
 echo "..."            # 输出并解析变量
 echo '...'            # 原样输出字符串
-echo "error" >&2      # 报错信息扔掉
+echo "error" >&2      # 输出到标准错误
 printf "时间:%d\n" 25  # %d->25
 cat/命令 << EOF
 ...............
@@ -66,7 +66,7 @@ cat/命令 << EOF
 EOF                   # 输出长文本
 seq -F'正则'/-s'分隔符'  [起始数 +-步长 末尾数]  # 打印数字
 
-
+sleep 10[s/m/h/d]     # 暂停时间后在继续运行
 
 # 日期
 date                  # 显示当前时间
@@ -90,9 +90,23 @@ exit (0/1)            # 退出脚本
  [全局^]   [只读^]
 # 变量名：只包含字母数字下划线，不能以数字开头
 # 变量值：字符串/命令输出值（可以用管道）
+# Shell 变量，默认不传给子进程
 
-# 删除变量
-unset time
+env  # 查看所有环境变量 
+PATH	     命令搜索路径
+HOME	     用户主目录
+PWD / OLDPWD 当前/上一工作目录
+SHELL	     用户默认 Shell
+USER	     当前用户名
+PS1 / PS2	 主提示符/续行提示符
+IFS	         字段分隔符
+LANG	     语言和字符集
+TERM	     终端类型
+HISTFILE	 命令历史文件
+
+
+set                   # 查看所有 Shell 变量、函数等
+unset time            # 删除变量
 
 # 引用变量
 echo "my time is${time}"
@@ -205,7 +219,7 @@ done
 ```Shell
 # 定义函数的格式
 function my_func() {
-    loacl name="函数局部变量"
+    local name="函数局部变量"
     echo "hello,$1. fxxk you!"
     return 0/1       # 退出函数（退出码）
 }
@@ -273,4 +287,11 @@ trap '清理命令1;命令2;函数' [信号列表]
 INT       # Ctrl + C 
 TERM      # kill <PID>
 EXIT      # 正常退出
+```
+
+
+### Shell 环境与作业控制
+
+```bash
+
 ```

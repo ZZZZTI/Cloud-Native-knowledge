@@ -33,9 +33,9 @@
 查看当前防火墙规则         firewall-cmd --list-all             ufw status verbose
 查看所有区域              firewall-cmd --get-zones            (无区域概念)
 查看默认区域             firewall-cmd --get-default-zone     (无区域概念)
-添加TCP端口(永久)       firewall-cmd --add-port=8080/tcp    ufw allow 8080/tcp --permanent  
-添加UDP端口(永久)       firewall-cmd --add-port=53/udp      ufw allow 53/udp --permanent    
-添加服务(永久)          firewall-cmd --add-service=http     ufw allow http --permanent      
+添加TCP端口(永久)       firewall-cmd --add-port=8080/tcp    ufw allow 8080/tcp 
+添加UDP端口(永久)       firewall-cmd --add-port=53/udp      ufw allow 53/udp  
+添加服务(永久)          firewall-cmd --add-service=http     ufw allow http      
 移除端口(永久)    firewall-cmd --remove-port=8080/tcp  ufw delete allow 8080/tcp-permanent  
 重载防火墙                  firewall-cmd --reload               ufw reload
 启用防火墙                  systemctl enable firewalld          ufw enable
